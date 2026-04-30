@@ -1,5 +1,5 @@
 # Mission
-（ここにこのシステムのミッションを記述してください）
+JavaScriptフレームワーク（React, Vue, Svelte）の比較分析を行い、用途別の推奨を文書化する。
 
 # Available Roles
 - Researcher: 情報収集・調査を担う
