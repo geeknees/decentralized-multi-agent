@@ -1,0 +1,11 @@
+# SQLite databases (runtime data)
+db/*.db
+db/*.db-shm
+db/*.db-wal
+
+# Auto-generated markdown docs
+whole_conversation_doc.md
+peer_review_doc.md
+
+# macOS
+.DS_Store
