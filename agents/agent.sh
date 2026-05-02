@@ -40,6 +40,7 @@ while true; do
 
   MY_ROLE=$(sqlite3 "$DB_PATH" "SELECT COALESCE(role,'unassigned') FROM agents WHERE name='$AGENT_NAME';")
   PURPOSE=$(cat "$PROJECT_ROOT/purpose_doc.md")
+  MSG_COUNT=$(sqlite3 "$DB_PATH" "SELECT COUNT(*) FROM messages;")
 
   MSGS_TEXT=""
   while IFS=$'\x01' read -r mid sender recipient content ts; do
@@ -53,7 +54,7 @@ while true; do
     PROPS_TEXT+="Proposal #$pid ($proposer): $title | $content | votes: $votes"$'\n'
   done <<< "$OPEN_PROPS"
 
-  PROMPT="Agent: $AGENT_NAME | Role: $MY_ROLE
+  PROMPT="Agent: $AGENT_NAME | Role: $MY_ROLE | Total messages: $MSG_COUNT
 
 Purpose:
 $PURPOSE

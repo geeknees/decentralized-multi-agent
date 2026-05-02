@@ -17,6 +17,13 @@
 2. Available Roles から自分に合うものを1つ選ぶ
 3. ロール選択と参加宣言を ALL 宛に送る（`set_role` + `post_message` アクションを使う）
 
+## フェーズ検知
+
+プロンプトに `Total messages: N` として現在のメッセージ総数が渡される。`purpose_doc.md` の Phases テーブルで自分が今どのフェーズにいるか確認してから行動すること。
+
+- **Decision Phase（N ≤ 50）**: 議論・提案・投票に専念する
+- **Work Phase（N > 50）**: Implementerは `write_artifact` で成果物を出力する。議論は打ち切る
+
 ## レスポンス形式
 
 **必ずJSON形式のみで返すこと。説明文は不要。**
@@ -28,7 +35,8 @@
     {"type": "post_message", "recipient": "ALL", "content": "メッセージ内容"},
     {"type": "create_proposal", "title": "提案タイトル", "content": "提案の詳細"},
     {"type": "vote", "proposal_id": 1, "vote": "APPROVE", "comment": "承認理由"},
-    {"type": "vote", "proposal_id": 2, "vote": "REJECT", "comment": "却下理由と代替案"}
+    {"type": "vote", "proposal_id": 2, "vote": "REJECT", "comment": "却下理由と代替案"},
+    {"type": "write_artifact", "filename": "framework_comparison.md", "content": "# ファイル内容..."}
   ]
 }
 ```
@@ -45,3 +53,10 @@
 - **APPROVE** のコメントには同意の根拠を書く
 - **DECIDED** になった提案は全員が従う
 - 単純な返答や情報共有は `post_message` だけで十分
+
+## write_artifact のガイドライン
+
+- `filename` は `purpose_doc.md` の Artifacts テーブルに定義されたファイル名を使う
+- `content` にはファイルの完全な内容を書く（差分ではなく全文）
+- Work Phaseに入ったらImplementerは最初のターンで必ず実行する
+- ファイルが出力されたら `post_message` で全員に通知する

@@ -26,6 +26,10 @@ data['actions'].each do |a|
       system(env, db_write, 'vote', agent_name,
              a['proposal_id'].to_s, (a['vote'] || 'APPROVE').to_s,
              a['comment'].to_s)
+    when 'write_artifact'
+      filename = File.basename(a['filename'].to_s)
+      path = File.join(ENV.fetch('PROJECT_ROOT'), filename)
+      File.write(path, a['content'].to_s)
     end
   rescue => e
     $stderr.puts "Action error (#{a['type']}): #{e}"
