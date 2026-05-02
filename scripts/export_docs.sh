@@ -34,6 +34,27 @@ sqlite3 "$DB_PATH" "SELECT id, proposer, title, content, status, created_at FROM
   echo ""
   echo "> Generated: $(date '+%Y-%m-%d %H:%M:%S')"
   echo ""
+  echo "## Mission Completion"
+  echo ""
+  sqlite3 "$DB_PATH" \
+    "SELECT status, COALESCE(artifact_filename, 'none'), COALESCE(completed_at, '')
+     FROM mission_state WHERE id=1;" | \
+  while IFS='|' read -r mission_status artifact_filename completed_at; do
+    echo "**Status:** $mission_status  "
+    echo "**Artifact:** $artifact_filename  "
+    if [ -n "$completed_at" ]; then
+      echo "**Completed at:** $completed_at  "
+    fi
+  done
+  echo ""
+  echo "| Artifact | Reviewer | Vote | Comment |"
+  echo "|----------|----------|------|---------|"
+  sqlite3 "$DB_PATH" \
+    "SELECT filename, reviewer, vote, COALESCE(comment, '') FROM artifact_reviews ORDER BY id;" | \
+  while IFS='|' read -r filename reviewer vote comment; do
+    echo "| $filename | $reviewer | $vote | $comment |"
+  done
+  echo ""
   while IFS='|' read -r pid proposer title content prop_status created_at; do
     echo "## Proposal #$pid [$prop_status]"
     echo "**タイトル:** $title  "

@@ -44,6 +44,31 @@ CREATE TABLE IF NOT EXISTS reviews (
   UNIQUE(proposal_id, reviewer)
 );
 
+CREATE TABLE IF NOT EXISTS mission_state (
+  id                  INTEGER PRIMARY KEY CHECK (id = 1),
+  status              TEXT NOT NULL DEFAULT 'running'
+                        CHECK (status IN ('running', 'review', 'completed')),
+  artifact_filename   TEXT,
+  artifact_written_at DATETIME,
+  completed_at        DATETIME,
+  updated_at          DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS artifact_reviews (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  filename   TEXT NOT NULL,
+  reviewer   TEXT NOT NULL,
+  vote       TEXT NOT NULL CHECK (vote IN ('APPROVE', 'REJECT')),
+  comment    TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(filename, reviewer)
+);
+
+INSERT OR IGNORE INTO mission_state (id, status) VALUES (1, 'running');
+
+DROP TRIGGER IF EXISTS auto_complete_mission;
+DROP TRIGGER IF EXISTS auto_reopen_mission;
+
 CREATE TRIGGER IF NOT EXISTS auto_decide
 AFTER INSERT ON reviews
 WHEN NEW.vote = 'APPROVE'
@@ -53,6 +78,34 @@ BEGIN
   WHERE id = NEW.proposal_id
     AND (SELECT COUNT(*) FROM reviews
          WHERE proposal_id = NEW.proposal_id AND vote = 'APPROVE') >= 2;
+END;
+
+CREATE TRIGGER IF NOT EXISTS auto_complete_mission
+AFTER INSERT ON artifact_reviews
+WHEN NEW.vote = 'APPROVE'
+BEGIN
+  UPDATE mission_state
+  SET status = 'completed',
+      completed_at = CURRENT_TIMESTAMP,
+      updated_at = CURRENT_TIMESTAMP
+  WHERE id = 1
+    AND artifact_filename = NEW.filename
+    AND status = 'review'
+    AND (SELECT COUNT(*) FROM artifact_reviews
+         WHERE filename = NEW.filename AND vote = 'APPROVE') >= 2;
+END;
+
+CREATE TRIGGER IF NOT EXISTS auto_reopen_mission
+AFTER INSERT ON artifact_reviews
+WHEN NEW.vote = 'REJECT'
+BEGIN
+  UPDATE mission_state
+  SET status = 'running',
+      completed_at = NULL,
+      updated_at = CURRENT_TIMESTAMP
+  WHERE id = 1
+    AND artifact_filename = NEW.filename
+    AND status = 'review';
 END;
 SQL
 

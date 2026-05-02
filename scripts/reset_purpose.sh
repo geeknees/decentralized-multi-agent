@@ -37,13 +37,22 @@ done
 
 # Soft reset: clear conversation state, preserve agent list structure
 sqlite3 "$DB_PATH" << 'SQL'
+DELETE FROM artifact_reviews;
 DELETE FROM reviews;
 DELETE FROM proposals;
 DELETE FROM messages;
 UPDATE agents SET role = NULL, last_read_id = 0, status = 'active';
+INSERT INTO mission_state (id, status, artifact_filename, artifact_written_at, completed_at, updated_at)
+VALUES (1, 'running', NULL, NULL, NULL, CURRENT_TIMESTAMP)
+ON CONFLICT(id) DO UPDATE SET
+  status = 'running',
+  artifact_filename = NULL,
+  artifact_written_at = NULL,
+  completed_at = NULL,
+  updated_at = CURRENT_TIMESTAMP;
 SQL
 
-echo "Reset: messages, proposals, reviews cleared; agent roles reset"
+echo "Reset: messages, proposals, reviews, artifact reviews cleared; mission state and agent roles reset"
 
 # Replace purpose_doc if a new one was provided
 if [ -n "$NEW_PURPOSE" ]; then

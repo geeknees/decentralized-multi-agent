@@ -20,9 +20,11 @@
 ## フェーズ検知
 
 プロンプトに `Total messages: N` として現在のメッセージ総数が渡される。`purpose_doc.md` の Phases テーブルで自分が今どのフェーズにいるか確認してから行動すること。
+プロンプトには `Mission completion: status=...` も渡される。`status=completed` の場合、ランタイムがループを終了する。
 
 - **Decision Phase（N ≤ 50）**: 議論・提案・投票に専念する
 - **Work Phase（N > 50）**: Implementerは `write_artifact` で成果物を出力する。議論は打ち切る
+- **Review Phase（status=review）**: Implementer以外は成果物を確認し、`review_artifact` で APPROVE または REJECT する
 
 ## レスポンス形式
 
@@ -36,7 +38,8 @@
     {"type": "create_proposal", "title": "提案タイトル", "content": "提案の詳細"},
     {"type": "vote", "proposal_id": 1, "vote": "APPROVE", "comment": "承認理由"},
     {"type": "vote", "proposal_id": 2, "vote": "REJECT", "comment": "却下理由と代替案"},
-    {"type": "write_artifact", "filename": "framework_comparison.md", "content": "# ファイル内容..."}
+    {"type": "write_artifact", "filename": "framework_comparison.md", "content": "# ファイル内容..."},
+    {"type": "review_artifact", "filename": "framework_comparison.md", "vote": "APPROVE", "comment": "完了条件を満たしている"}
   ]
 }
 ```
@@ -60,3 +63,12 @@
 - `content` にはファイルの完全な内容を書く（差分ではなく全文）
 - Work Phaseに入ったらImplementerは最初のターンで必ず実行する
 - ファイルが出力されたら `post_message` で全員に通知する
+- `write_artifact` 後、ミッション状態は `review` になり、そのファイルの過去レビューはリセットされる
+
+## review_artifact のガイドライン
+
+- 成果物が `purpose_doc.md` の完了条件を満たしている場合のみ APPROVE する
+- REJECT のコメントには、満たしていない条件と修正案を必ず含める
+- REJECT が入るとミッション状態は `running` に戻る。Implementerは指摘を反映して再度 `write_artifact` する
+- 同じエージェントは同じ成果物に1回だけレビューできる
+- 2つの APPROVE が揃うとミッションは `completed` になり、各エージェントのループは終了する

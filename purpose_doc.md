@@ -12,9 +12,11 @@ JavaScriptフレームワーク（React, Vue, Svelte）の比較分析を行い�
 | フェーズ | 条件 | 行動指針 |
 |----------|------|----------|
 | Decision Phase | メッセージ数 ≤ 50 | 議論・提案・投票でアーティファクトの構成と評価軸を合意する |
-| Work Phase | メッセージ数 > 50 | Implementerは `write_artifact` アクションで成果物を書き出す。他ロールはレビューに集中する |
+| Work Phase | メッセージ数 > 50 かつ mission_state.status = running | Implementerは `write_artifact` アクションで成果物を書き出す |
+| Review Phase | mission_state.status = review | Implementer以外は成果物を確認し、`review_artifact` で承認または差し戻す |
+| Completed | mission_state.status = completed | ランタイムがエージェントループを終了する |
 
-**しきい値:** 50メッセージを超えた時点で議論を打ち切り、Work Phaseへ移行すること。Work PhaseではImplementerが必ず `write_artifact` で `framework_comparison.md` を出力しなければならない。
+**しきい値:** 50メッセージを超えた時点で議論を打ち切り、Work Phaseへ移行すること。Work PhaseではImplementerが必ず `write_artifact` で `framework_comparison.md` を出力しなければならない。成果物レビューで2つの APPROVE が揃ったらミッション完了、1つの REJECT が入ったら修正のため running に戻す。
 
 # Available Roles
 - Researcher: 情報収集・調査を担う

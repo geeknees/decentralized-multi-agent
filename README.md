@@ -22,15 +22,17 @@ N個のAIエージェントがSQLiteブラックボードを共有し、ピア�
 各エージェントは独立したループを実行する：
 
 1. SQLiteブラックボードから未読メッセージ・未決プロポーザルを読む
-2. `purpose_doc.md` のミッションと現在の状態を `claude --print` に渡す
-3. Claude が返したJSONアクションを解析し、DBに書き込む
-4. Markdownドキュメントをエクスポートして睡眠（デフォルト10秒）
+2. `mission_state.status = completed` なら終了する
+3. `purpose_doc.md` のミッションと現在の状態を `claude --print` に渡す
+4. Claude が返したJSONアクションを解析し、DBに書き込む
+5. Markdownドキュメントをエクスポートして睡眠（デフォルト10秒）
 
 ## 意思決定ルール
 
 - **2 APPROVE → DECIDED**: SQLiteトリガーが自動的にステータスを更新
 - **REJECT**: 再議論。コメントには必ず代替案を含める
 - **同一エージェントの二重投票**: UNIQUE制約で拒否
+- **成果物レビュー**: `write_artifact` 後に `mission_state.status = review` となり、`review_artifact` の2 APPROVEで `completed`、1 REJECTで `running` に戻る
 
 ## ファイル構成
 
@@ -84,7 +86,9 @@ mise install ruby
 | フェーズ | 条件 | 行動指針 |
 |----------|------|----------|
 | Decision Phase | メッセージ数 ≤ 50 | 議論・提案・投票で構成を合意する |
-| Work Phase | メッセージ数 > 50 | Implementerが write_artifact で成果物を出力する |
+| Work Phase | メッセージ数 > 50 かつ mission_state.status = running | Implementerが write_artifact で成果物を出力する |
+| Review Phase | mission_state.status = review | 成果物を review_artifact でレビューする |
+| Completed | mission_state.status = completed | エージェントループを終了する |
 
 # Available Roles
 - Researcher: 情報収集・調査を担う
@@ -146,9 +150,13 @@ agents     (id, name, role, status, last_seen, last_read_id)
 messages   (id, sender, recipient, content, created_at)
 proposals  (id, proposer, title, content, status, created_at)
 reviews    (id, proposal_id, reviewer, vote, comment, created_at)
+mission_state    (id, status, artifact_filename, artifact_written_at, completed_at, updated_at)
+artifact_reviews (id, filename, reviewer, vote, comment, created_at)
 ```
 
 `auto_decide` トリガーが `reviews` への INSERT後に APPROVE が2件以上あれば `proposals.status` を `DECIDED` に更新する。
+`auto_complete_mission` トリガーが `artifact_reviews` への INSERT後に同じ成果物の APPROVE が2件以上あれば `mission_state.status` を `completed` に更新する。
+`auto_reopen_mission` トリガーが成果物レビューの REJECT で `mission_state.status` を `running` に戻す。
 
 ## エージェントのアクション形式
 
@@ -162,18 +170,20 @@ reviews    (id, proposal_id, reviewer, vote, comment, created_at)
     {"type": "create_proposal", "title": "タイトル", "content": "詳細"},
     {"type": "vote", "proposal_id": 1, "vote": "APPROVE", "comment": "理由"},
     {"type": "vote", "proposal_id": 2, "vote": "REJECT", "comment": "却下理由と代替案"},
-    {"type": "write_artifact", "filename": "output.md", "content": "# ファイル内容..."}
+    {"type": "write_artifact", "filename": "output.md", "content": "# ファイル内容..."},
+    {"type": "review_artifact", "filename": "output.md", "vote": "APPROVE", "comment": "完了条件を満たしている"}
   ]
 }
 ```
 
 `write_artifact` は Work Phase で Implementer が `purpose_doc.md` の Artifacts テーブルに定義されたファイルを出力するために使う。`content` にはファイルの完全な内容（差分ではなく全文）を渡す。
+`review_artifact` は成果物レビュー用のアクションで、2つの APPROVE が揃うとミッションが完了し、各エージェントループは次回チェック時に終了する。
 
 ## テスト
 
 ```bash
 bash tests/run_tests.sh
-# Results: 30 passed, 0 failed
+# Results: 44 passed, 0 failed
 ```
 
 ## 環境変数

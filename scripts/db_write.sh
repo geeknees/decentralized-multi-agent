@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ABOUTME: CLI helper for agents to write to the SQLite shared blackboard
-# ABOUTME: Subcommands: post_message, create_proposal, vote
+# ABOUTME: Subcommands: post_message, create_proposal, vote, review_artifact
 
 set -euo pipefail
 
@@ -13,6 +13,7 @@ usage() {
   echo "  db_write.sh post_message <sender> <recipient> <content>"
   echo "  db_write.sh create_proposal <proposer> <title> <content>"
   echo "  db_write.sh vote <reviewer> <proposal_id> <APPROVE|REJECT> <comment>"
+  echo "  db_write.sh review_artifact <reviewer> <filename> <APPROVE|REJECT> <comment>"
   exit 1
 }
 
@@ -43,6 +44,18 @@ case "$cmd" in
     fi
     sqlite3 "$DB_PATH" \
       "INSERT INTO reviews (proposal_id, reviewer, vote, comment) VALUES ($proposal_id, '$reviewer', '$vote', '$comment');" || exit 1
+    ;;
+  review_artifact)
+    reviewer="$(sq "${2:?reviewer required}")"
+    filename_raw="$(basename -- "${3:?filename required}")"
+    filename="$(sq "$filename_raw")"
+    vote="${4:?vote required}"
+    comment="$(sq "${5:-}")"
+    if [[ "$vote" != "APPROVE" && "$vote" != "REJECT" ]]; then
+      echo "vote must be APPROVE or REJECT" >&2; exit 1
+    fi
+    sqlite3 "$DB_PATH" \
+      "INSERT INTO artifact_reviews (filename, reviewer, vote, comment) VALUES ('$filename', '$reviewer', '$vote', '$comment');" || exit 1
     ;;
   *)
     usage

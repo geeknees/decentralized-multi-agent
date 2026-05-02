@@ -15,6 +15,8 @@ INSERT INTO messages (sender, recipient, content) VALUES ('agent-b', 'agent-a', 
 INSERT INTO proposals (proposer, title, content) VALUES ('agent-a', 'Test Proposal', 'Proposal body here');
 INSERT INTO reviews (proposal_id, reviewer, vote, comment) VALUES (1, 'agent-a', 'APPROVE', 'Good');
 INSERT INTO reviews (proposal_id, reviewer, vote, comment) VALUES (1, 'agent-b', 'APPROVE', 'Agree');
+UPDATE mission_state SET status='review', artifact_filename='output.md', artifact_written_at=CURRENT_TIMESTAMP;
+INSERT INTO artifact_reviews (filename, reviewer, vote, comment) VALUES ('output.md', 'agent-a', 'APPROVE', 'Complete');
 SQL
 
 DB_PATH="$DB_PATH" EXPORT_DIR="$EXPORT_DIR" "$SCRIPTS_DIR/export_docs.sh" > /dev/null
@@ -38,5 +40,7 @@ pr=$(cat "$EXPORT_DIR/peer_review_doc.md")
 assert_contains "DECIDED" "$pr" "peer_review shows DECIDED status"
 assert_contains "Test Proposal" "$pr" "peer_review shows proposal title"
 assert_contains "APPROVE" "$pr" "peer_review shows votes"
+assert_contains "Mission Completion" "$pr" "peer_review shows mission section"
+assert_contains "output.md" "$pr" "peer_review shows artifact review"
 
 rm -rf "$EXPORT_DIR"
