@@ -16,12 +16,15 @@ The goal is not to claim that decentralized coordination is generally superior. 
 
 As a research prototype, this project also helps organize practical challenges in realizing decentralized organizations with LLM agents. The current implementation addresses two narrow pieces: making a decision phase explicit, and making expected artifacts and their acceptance criteria explicit. A larger organizational question remains open: an organization may not exist only to produce artifacts. Clarifying organizational purpose beyond deliverable production is future research, not a claim made by this implementation.
 
+The project can also be read as an early case of using LLM agents to make organization-theory questions executable and observable. In this repository, that case is limited to decentralized decision making and artifact review. Related future applications could include education research, such as comparing learning outcomes under different teacher-to-learner ratios with LLM-supported simulation or analysis, and political science research, such as exploratory models of voting behavior. Those applications are outside the current implementation and would require domain-specific experimental designs, validation data, and ethical review.
+
 ## What this project explores
 
 - Shared-state coordination through SQLite as a blackboard.
 - Peer proposal and voting instead of manager-only decisions.
 - Artifact review as a separate phase from ordinary discussion.
 - Explicit decision phases and artifact definitions as minimal organizational scaffolding.
+- LLM-agent prototypes as a way to operationalize selected organization-theory questions.
 - Minimal governance rules that can be enforced by database constraints and triggers.
 - Failure modes such as proposal churn, role duplication, invalid self-vote attempts, and stalled convergence.
 

@@ -35,6 +35,8 @@ This prototype explores a different design question: what is the minimal machine
 
 This prototype also helps organize implementation-level challenges that appear when trying to realize decentralized organizations with LLM agents. In its current form, the implementation addresses two such challenges: making the decision phase explicit, and making expected artifacts and their acceptance criteria explicit. These are necessary but not sufficient organizational primitives. A broader question remains outside the current implementation: an organization may not exist only to produce artifacts, so its enduring purpose, identity, learning, membership, and value commitments require additional research.
 
+The report also treats the prototype as a small case study in using LLMs for organization-theory research. Rather than only asking whether LLM agents can complete a task, the prototype asks whether organizational constructs such as authority, quorum, dissent, deliverables, and review can be made executable enough to inspect. This line of work could later be extended beyond software-agent coordination. For example, in education research, LLM-supported simulations or analytic assistants might help compare learning outcomes under different teacher-to-learner ratios, provided the study is anchored in real educational theory, data, and validation. In political science, similar methods might support exploratory analysis of voting behavior. These examples are not evaluated here; they are presented as possible extensions of an LLM-based organizational research method.
+
 This framing is related to blackboard systems, peer review, lightweight governance mechanisms, and decentralized organizational design. The current technical claim remains narrower than that organizational framing: the core object is an executable blackboard and decision protocol for LLM agents, not a completed theory of decentralized organizations.
 
 ## 3. System Overview
@@ -246,6 +248,9 @@ Research-facing work should include:
 
 - a formal related-work review expanded from `paper/related-work-notes.md`;
 - a separate inquiry into decentralized organizational purpose beyond artifact production;
+- a methodological note on using LLM-agent prototypes as cases for organization-theory research;
+- domain-specific study designs for education research, such as teacher-to-learner ratio and learning-outcome comparisons, where appropriate validation data are available;
+- cautious exploration of non-core domains such as political voting behavior, with explicit attention to validation, bias, and ethics;
 - controlled comparison with manager-worker orchestration;
 - analysis of when dissent helps or harms;
 - study of how much governance can be enforced in schema versus prompts;

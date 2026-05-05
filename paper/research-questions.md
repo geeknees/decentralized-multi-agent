@@ -4,6 +4,8 @@ This file defines research questions for the decentralized multi-agent prototype
 
 This prototype also helps organize practical challenges in realizing decentralized organizations with LLM agents. The current implementation addresses two narrow challenges: explicit decision phases, and explicit artifacts with acceptance criteria. It does not yet address whether an organization exists only for artifact production, or how non-artifact organizational purpose should be represented and evaluated.
 
+The prototype is also a case of using LLM agents to make selected organization-theory questions executable and observable. The present case is limited to decentralized decision making and artifact review. Broader applications, such as education research on teacher-to-learner ratios and learning outcomes, or political-science analysis of voting behavior, remain future work and require their own domain-specific validation.
+
 ## RQ1: Can LLM agents coordinate through a shared blackboard without a central orchestrator?
 
 ### Background
@@ -172,3 +174,30 @@ The prototype can encode a mission document and phase table, and it can force ag
 ### What Cannot Be Said Yet
 
 The repository does not yet define or evaluate organizational existence beyond artifacts. It cannot currently test whether decentralized agents sustain identity, values, learning, or purpose across changing tasks.
+
+## RQ7: Can LLM-agent prototypes serve as useful cases for organization-theory research?
+
+### Background
+
+This repository does not only implement a coordination mechanism. It also provides a small executable case in which organizational concepts such as authority, quorum, dissent, decision phases, deliverables, and review criteria are represented in prompts, database schema, and agent behavior. This makes the prototype potentially useful as a research instrument for organization theory, while also creating risks of overinterpreting simulated behavior.
+
+### Indicators to Observe
+
+- whether organizational constructs are represented explicitly enough to inspect;
+- whether logs preserve decision history in a form usable for qualitative analysis;
+- whether repeated runs expose different organizational failure modes;
+- whether human researchers can map observed agent behavior back to a stated organizational theory;
+- whether findings remain stable when the model, prompt, or agent count changes;
+- whether domain experts judge the simulation assumptions as plausible.
+
+### Experiment Method
+
+Use the current prototype as a bounded case study before generalizing to other domains. Define the organizational construct under study, encode it as mission rules or governance rules, run repeated missions, and compare the logs against human-coded categories. For future education research, one possible design is to compare LLM-supported analyses or simulations of learning outcomes under different teacher-to-learner ratios, using real educational assumptions and validation data. For political-science work, a possible design is exploratory modeling of voting behavior, but only with explicit bias checks and clear separation between simulation and empirical evidence.
+
+### What Can Be Said Now
+
+The prototype already makes some organizational primitives executable: shared purpose documents, proposal phases, voting, artifact acceptance, and review records. This supports a narrow claim that LLM-agent systems can be used to operationalize selected organizational mechanisms for inspection.
+
+### What Cannot Be Said Yet
+
+The repository does not yet show that LLM-agent simulations produce valid findings about human organizations, classrooms, or voters. Education and political applications are possible research directions, not results. They would require domain expertise, real-world data, ethical review where human subjects or sensitive inferences are involved, and careful validation against non-LLM baselines.
