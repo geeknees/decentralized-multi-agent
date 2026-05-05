@@ -1,6 +1,6 @@
 # Figures
 
-The following Mermaid diagrams can be rendered in GitHub or exported for a technical report.
+These Mermaid diagrams can be rendered in GitHub or exported for a technical report.
 
 ## System Architecture Diagram
 

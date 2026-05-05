@@ -1,6 +1,6 @@
 # Experiment Log Template
 
-Copy this template once per run. Store completed logs under a versioned directory such as `experiments/2026-05-05-exp-001/` if experiment logs are added to the repository.
+Copy this template once per run. If experiment logs are added to the repository, store completed logs under a versioned directory such as `experiments/2026-05-05-exp-001/`.
 
 ## Experiment Metadata
 
@@ -93,7 +93,7 @@ TODO
 
 ## External Human Review
 
-Use this section when the run itself is not interrupted by a human, but generated artifacts and logs are reviewed after completion. This can include ordinary human review or review augmented by separate LLM tools. Record the review method separately from agent-runtime behavior.
+Use this section when the run itself is not interrupted by a human, but generated artifacts and logs are reviewed after completion. This can include ordinary human review or review assisted by separate LLM tools. Record the review method separately from agent-runtime behavior.
 
 | Reviewer ID | Reviewed material | Method | LLM assistance used? | Outcome | Notes |
 |---|---|---|---|---|---|

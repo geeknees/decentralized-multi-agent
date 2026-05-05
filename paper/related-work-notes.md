@@ -1,6 +1,6 @@
 # Related Work Notes
 
-These notes separate required reading for the current technical report from candidate related work for future expansion. Only works that have been read and directly connected to the prototype should be promoted into formal references.
+These notes separate required reading for the current technical report from candidate related work for later expansion. Only works that have been read and connected directly to the prototype should move into formal references.
 
 ## Required Reading for Current Report
 
@@ -34,7 +34,7 @@ These notes separate required reading for the current technical report from cand
 
 ## Candidate Related Work
 
-These should not be promoted into formal references until read and explicitly connected to the report.
+Do not promote these into formal references until they have been read and connected to the report.
 
 - CAMEL
   - Possible relevance: role-playing communicative agents.
@@ -65,4 +65,4 @@ These should not be promoted into formal references until read and explicitly co
 - DAO governance literature
 - Human-AI collaboration literature
 
-Reason for removal: these areas are conceptually adjacent but not necessary for the current prototype report. Including them now would broaden the framing without strengthening the core claim.
+Reason for removal: these areas are adjacent, but they are not needed for the current prototype report. Including them now would broaden the framing without strengthening the core claim.

@@ -1,6 +1,6 @@
 # Evaluation Plan
 
-This plan defines how to evaluate the decentralized blackboard prototype without overstating current evidence.
+This plan describes how to evaluate the decentralized blackboard prototype without overstating the evidence.
 
 ## Goals
 
@@ -8,7 +8,7 @@ This plan defines how to evaluate the decentralized blackboard prototype without
 - Compare decentralized coordination against simpler and more centralized baselines.
 - Identify failure modes and governance rules that matter.
 - Produce reproducible logs suitable for a Zenodo release.
-- Separate artifact-production success from broader organizational-purpose questions.
+- Separate artifact-production success from organizational-purpose questions.
 
 ## Metrics
 
@@ -37,7 +37,7 @@ This plan defines how to evaluate the decentralized blackboard prototype without
 
 One LLM agent receives the mission and produces the artifact directly. It may use the same artifact criteria but does not use peer proposals or voting.
 
-Purpose: establish whether multi-agent overhead is justified.
+Purpose: check whether the extra multi-agent machinery is worth it.
 
 ### Central Manager-Agent Baseline
 
@@ -45,24 +45,24 @@ A manager agent assigns work to specialized agents, decides when to proceed, and
 
 Purpose: compare decentralized peer review with a common manager-worker design.
 
-This baseline is not intended to reduce the project to a productivity benchmark. Manager-worker systems and frameworks such as AutoGen, CrewAI, and LangGraph often focus on efficient task decomposition, specialist routing, workflow reliability, and token or latency tradeoffs. Those are valid engineering concerns, but the present prototype asks a different question: whether a decentralized peer model can support exploratory progress when expertise, authority, or resources are incomplete or distributed.
+This baseline should not turn the project into a productivity benchmark. Manager-worker systems and frameworks such as AutoGen, CrewAI, and LangGraph usually focus on task decomposition, specialist routing, workflow reliability, and token or latency tradeoffs. Those are valid engineering concerns. This prototype asks a different question: can a decentralized peer model make exploratory progress when expertise, authority, or resources are incomplete or distributed?
 
 ### Decentralized Blackboard Version
 
 The current prototype: multiple agents share SQLite, create proposals, vote, write artifacts, and review artifacts.
 
-Purpose: measure whether blackboard-mediated governance supports completion and review without a central manager. Productivity and token cost are still recorded, but they are secondary metrics rather than the primary goal of the research.
+Purpose: measure whether blackboard-mediated governance supports completion and review without a central manager. Productivity and token cost are still recorded, but they are secondary metrics.
 
 ### Human-in-the-Loop Version
 
-There are at least two different ways to define this condition:
+This condition can mean at least two things:
 
 - **Embedded human checkpoints:** the software pauses at selected decision or artifact-review points and requires explicit human approval before continuing.
-- **External human review:** the agent system produces artifacts, database logs, and exported Markdown records, then humans review those outputs outside the core runtime. The review can be supported by separate LLM-based tools, such as rubric assistants, source-checking assistants, or comparison summaries.
+- **External human review:** the agent system produces artifacts, database logs, and exported Markdown records. Humans then review those outputs outside the core runtime. Separate LLM-based tools can help with rubrics, source checks, or comparison summaries.
 
 Purpose: measure whether human oversight reduces stalls, false acceptance, unsafe actions, or low-quality artifacts.
 
-For this technical-report release, Human-in-the-Loop is a proposed evaluation condition rather than an implemented result. The external-review approach may be more composable than embedding human approval inside a single software runtime: it keeps the prototype focused on reproducible artifact and log generation, allows independent review workflows to be swapped in, and makes the method easier to apply across education, political-science, software-engineering, and organization-theory studies.
+For this technical-report release, Human-in-the-Loop is a proposed evaluation condition, not an implemented result. External review may compose better than human approval built into one runtime. It keeps the prototype focused on reproducible artifacts and logs, lets review workflows change independently, and makes the method easier to apply in education, political science, software engineering, and organization-theory studies.
 
 ## Experiment Matrix
 
@@ -95,7 +95,7 @@ Each run should preserve:
 
 ## Human Rating Rubric
 
-For final artifact quality, use a 1-5 scale on:
+For final artifact quality, use a 1-5 scale:
 
 - task coverage;
 - factual accuracy;
@@ -112,12 +112,12 @@ Record reviewer identity or anonymized reviewer ID, date, and whether the review
 - Report descriptive statistics first.
 - Avoid strong significance claims until enough repeated runs exist.
 - Separate implementation failures from model reasoning failures.
-- Treat token cost and wall-clock time as first-class outcomes, not only task quality.
+- Treat token cost and wall-clock time as outcomes, not just task quality.
 - Include representative failure cases with database evidence.
 
 ## Minimum Zenodo-Ready Evaluation
 
-For v0.1.0, a minimal acceptable evaluation package is:
+For v0.1.0, the minimum evaluation package is:
 
 - all tests passing at the release commit;
 - at least one fresh sample run on the current schema;
