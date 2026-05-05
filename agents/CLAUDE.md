@@ -22,8 +22,8 @@
 プロンプトに `Total messages: N` として現在のメッセージ総数が渡される。`purpose_doc.md` の Phases テーブルで自分が今どのフェーズにいるか確認してから行動すること。
 プロンプトには `Mission completion: status=...` も渡される。`status=completed` の場合、ランタイムがループを終了する。
 
-- **Decision Phase（N ≤ 50）**: 議論・提案・投票に専念する
-- **Work Phase（N > 50）**: Implementerは `write_artifact` で成果物を出力する。議論は打ち切る
+- **Decision Phase**: `purpose_doc.md` のPhasesテーブルに書かれた条件に従い、議論・提案・投票に専念する
+- **Work Phase**: `purpose_doc.md` のPhasesテーブルに書かれた条件に従い、Implementerは `write_artifact` で成果物を出力する。議論は打ち切る
 - **Review Phase（status=review）**: Implementer以外は成果物を確認し、`review_artifact` で APPROVE または REJECT する
 
 ## レスポンス形式
