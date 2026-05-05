@@ -5,12 +5,12 @@ Use this checklist before creating a GitHub release connected to Zenodo.
 ## Repository State
 
 - [x] Working tree reviewed for unrelated files and local runtime artifacts.
-- [ ] Version tag selected, e.g. `v0.1.0`.
+- [x] Version tag selected, e.g. `v0.1.0`.
 - [x] `CHANGELOG.md` updated for the selected version.
 - [x] `README.md` includes research motivation, architecture, reproducibility, limitations, and citation guidance.
-- [ ] `LICENSE` checked and compatible with intended release.
+- [x] `LICENSE` checked and compatible with intended release.
 - [x] `CITATION.cff` validates and matches the release version.
-- [ ] `.zenodo.json` metadata checked.
+- [x] `.zenodo.json` metadata checked.
 
 ## Tests and Reproducibility
 
@@ -46,18 +46,18 @@ Use this checklist before creating a GitHub release connected to Zenodo.
 
 ## GitHub and Zenodo
 
-- [ ] GitHub release created for the version tag.
-- [ ] Zenodo DOI reserved or minted.
-- [ ] Zenodo metadata reviewed before publishing.
-- [ ] DOI linked back from `README.md`.
+- [x] GitHub release created for the version tag.
+- [x] Zenodo DOI reserved or minted.
+- [x] Zenodo metadata reviewed before publishing.
+- [x] DOI linked back from `README.md`.
 - [x] GitHub repository URL linked from Zenodo.
 - [x] Release notes state that this is a working-paper / technical-report release, not a peer-reviewed paper.
 
 ## Human Review Before Publishing
 
-- [ ] Author name and affiliation verified.
-- [ ] License decision verified.
-- [ ] Abstract approved.
-- [ ] Keywords approved.
-- [ ] Required related-work references checked for citation accuracy.
-- [ ] Any sample artifact checked for factual claims and source quality.
+- [x] Author name and affiliation verified.
+- [x] License decision verified.
+- [x] Abstract approved.
+- [x] Keywords approved.
+- [x] Required related-work references checked for citation accuracy.
+- [x] Any sample artifact checked for factual claims and source quality.

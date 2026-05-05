@@ -1,12 +1,14 @@
 # Decentralized Multi-Agent System
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20034240.svg)](https://doi.org/10.5281/zenodo.20034240)
+
 [English](#english) | [日本語](#日本語)
 
 ## English
 
 A decentralized autonomous system where multiple AI agents share a SQLite blackboard and make decisions through peer review. Agents run as tmux panes and call a configurable LLM provider to return actions in JSON format.
 
-This repository is also prepared as a research prototype for a Zenodo DOI release. It is a technical-report / working-paper artifact, not a peer-reviewed paper. The implementation is the live development space; the `paper/` directory contains the fixed research framing, evaluation plan, and release notes.
+This repository is archived on Zenodo as DOI [`10.5281/zenodo.20034240`](https://doi.org/10.5281/zenodo.20034240). It is a technical-report / working-paper artifact, not a peer-reviewed paper. The implementation is the live development space; the `paper/` directory contains the fixed research framing, evaluation plan, and release notes.
 
 ## Research Motivation
 
@@ -73,7 +75,7 @@ Metrics include task completion rate, time to decision, messages until decision,
 
 ## Citation
 
-Citation metadata is provided in [`CITATION.cff`](CITATION.cff). Until a DOI is minted, cite the GitHub repository and version tag. After Zenodo publication, the DOI should be added here and to `CITATION.cff`.
+Citation metadata is provided in [`CITATION.cff`](CITATION.cff). For the archived v0.1.0 release, cite DOI [`10.5281/zenodo.20034240`](https://doi.org/10.5281/zenodo.20034240).
 
 ## Limitations
 
