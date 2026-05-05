@@ -3,9 +3,9 @@ db/*.db
 db/*.db-shm
 db/*.db-wal
 
-# Auto-generated markdown docs
-whole_conversation_doc.md
-peer_review_doc.md
+# Auto-generated markdown docs in repository root
+/whole_conversation_doc.md
+/peer_review_doc.md
 
 # macOS
 .DS_Store
