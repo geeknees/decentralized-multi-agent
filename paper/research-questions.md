@@ -125,6 +125,8 @@ The minimum necessary governance set is unknown. Some current rules may be insuf
 
 Frameworks such as AutoGen, CrewAI, and LangGraph support multi-agent workflows, often through explicit orchestration, manager patterns, graph routing, flows, or handoffs. This project instead emphasizes peer agents acting through a shared blackboard and database-level decision transitions.
 
+The comparison is not only a matter of performance. AutoGen, CrewAI, LangGraph, and similar frameworks are often oriented toward efficient task decomposition, specialized agent assignment, workflow control, and practical productivity. Token cost, latency, and throughput are important evaluation concerns for those systems. The decentralized blackboard prototype is framed differently: it is a social-system experiment about whether autonomous agents can use shared records, proposals, votes, dissent, and artifact review to make exploratory progress without a standing manager. This may be especially relevant to settings where specialized knowledge, authority, or resources are incomplete or unevenly distributed.
+
 ### Indicators to Observe
 
 - task completion rate;
@@ -143,11 +145,11 @@ Implement comparable tasks in a central manager-agent setup and in the decentral
 
 ### What Can Be Said Now
 
-The architectural difference is clear at the implementation level: this prototype has no standing manager agent and persists governance events in SQLite.
+The architectural difference is clear at the implementation level: this prototype has no standing manager agent and persists governance events in SQLite. The research purpose is also different from productivity-oriented orchestration: the prototype asks whether self-organizing coordination can reach a useful destination under incomplete expertise or resources.
 
 ### What Cannot Be Said Yet
 
-No empirical comparison has been completed. It is not yet known whether the decentralized version is better for any specific task class.
+No empirical comparison has been completed. It is not yet known whether the decentralized version is better for any specific task class, and the current repository does not show that it reduces token cost, latency, or human effort compared with orchestration frameworks.
 
 ## RQ6: How should decentralized LLM-agent organizations represent purpose beyond artifact production?
 

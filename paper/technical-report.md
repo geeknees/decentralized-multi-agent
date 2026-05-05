@@ -4,7 +4,7 @@
 
 This technical report describes a research prototype for decentralized coordination among large language model agents. The system runs multiple agent processes as independent `tmux` sessions. Each agent repeatedly reads a shared SQLite database, receives the mission specification and current blackboard state, calls a configurable LLM provider adapter, and writes structured JSON actions back to the database. Instead of using a central manager agent to assign tasks and approve work, the prototype uses a lightweight proposal-and-review protocol: agents create proposals, cast `APPROVE` or `REJECT` votes, and SQLite triggers mark a proposal as decided when two approvals are recorded. A separate artifact-review path moves a mission from running to review and then to completed when two artifact approvals are recorded.
 
-The prototype explores whether a small set of database-backed governance rules can support task progress, dissent, revision, and final artifact acceptance among peer LLM agents. It is best understood as a blackboard-style architecture adapted for LLM agents rather than as a proven general-purpose multi-agent framework. Current evidence is limited to implementation tests and a small sample mission. The report therefore separates implemented mechanisms, preliminary observations, failure modes, limitations, and an evaluation plan for future controlled experiments against single-agent and centrally orchestrated baselines.
+The prototype explores whether a small set of database-backed governance rules can support task progress, dissent, revision, and final artifact acceptance among peer LLM agents. It is best understood as a blackboard-style architecture and social-system experiment rather than as a productivity benchmark against orchestration frameworks. Current evidence is limited to implementation tests and a small sample mission. The report therefore separates implemented mechanisms, preliminary observations, failure modes, limitations, and an evaluation plan for future controlled experiments against single-agent and centrally orchestrated baselines.
 
 ## 1. Introduction
 
@@ -24,6 +24,8 @@ The implementation uses:
 ## 2. Motivation
 
 Many LLM-agent systems are organized around a central controller: a manager, planner, router, graph node, or workflow engine decides which specialized agent acts next. This is practical and often desirable. Central control makes execution easier to reason about, makes routing explicit, and gives operators clearer intervention points.
+
+This report does not present a completed empirical comparison with AutoGen, CrewAI, LangGraph, or similar orchestration frameworks. More importantly, the comparison should not be framed only as a productivity contest. Those frameworks often aim to coordinate specialized agents, route work, and make task execution more efficient, with productivity, reliability, and token-cost tradeoffs as central concerns. The present prototype has a different primary purpose: it treats a decentralized multi-agent runtime as a small social-system experiment. The question is whether autonomous peer coordination, shared records, proposals, dissent, and artifact review can support exploratory progress when expertise, authority, or resources are incomplete or distributed. In some domains this may eventually improve productivity or cost, but those outcomes are secondary to the current research framing.
 
 This prototype explores a different design question: what is the minimal machinery needed for LLM agents to coordinate as peers through shared state? The motivation is not to replace centralized orchestration in production systems. It is to study an alternative coordination pattern where:
 
@@ -216,6 +218,8 @@ Second, the governance protocol is intentionally minimal. It demonstrates propos
 Third, agent behavior remains heavily prompt-mediated. The database enforces duplicate vote prevention and approval thresholds, but several important norms are only described in `agents/CLAUDE.md`. A model may ignore or inconsistently apply those norms.
 
 Fourth, the system has not yet been evaluated under repeated controlled experiments. No statistically meaningful comparison has been run against a single-agent baseline, a manager-worker baseline, or established orchestration approaches such as AutoGen or LangGraph.
+
+The absence of those framework comparisons should be interpreted with the research aim in view. AutoGen, CrewAI, LangGraph, and similar systems are relevant comparison points, but they are not direct substitutes for the present question. This prototype is closer to an executable social-system experiment than to an optimization layer for specialist task assignment. Claims about productivity, token-cost savings, or superiority over orchestration frameworks are therefore outside the current evidence.
 
 Fifth, output quality is not automatically evaluated. The system can record that an artifact was accepted, but acceptance is based on agent votes rather than an external rubric, independent human judgment, or objective task score.
 

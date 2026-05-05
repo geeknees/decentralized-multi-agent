@@ -45,11 +45,13 @@ A manager agent assigns work to specialized agents, decides when to proceed, and
 
 Purpose: compare decentralized peer review with a common manager-worker design.
 
+This baseline is not intended to reduce the project to a productivity benchmark. Manager-worker systems and frameworks such as AutoGen, CrewAI, and LangGraph often focus on efficient task decomposition, specialist routing, workflow reliability, and token or latency tradeoffs. Those are valid engineering concerns, but the present prototype asks a different question: whether a decentralized peer model can support exploratory progress when expertise, authority, or resources are incomplete or distributed.
+
 ### Decentralized Blackboard Version
 
 The current prototype: multiple agents share SQLite, create proposals, vote, write artifacts, and review artifacts.
 
-Purpose: measure whether blackboard-mediated governance supports completion and review without a central manager.
+Purpose: measure whether blackboard-mediated governance supports completion and review without a central manager. Productivity and token cost are still recorded, but they are secondary metrics rather than the primary goal of the research.
 
 ### Human-in-the-Loop Version
 
