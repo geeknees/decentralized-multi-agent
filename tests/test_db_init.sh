@@ -28,6 +28,12 @@ assert_equals "artifact_reviews" "$result" "artifact_reviews table exists"
 result=$(sqlite3 "$DB_PATH" "SELECT name FROM sqlite_master WHERE type='trigger' AND name='auto_decide';")
 assert_equals "auto_decide" "$result" "auto_decide trigger exists"
 
+result=$(sqlite3 "$DB_PATH" "SELECT name FROM sqlite_master WHERE type='trigger' AND name='prevent_self_vote';")
+assert_equals "prevent_self_vote" "$result" "prevent_self_vote trigger exists"
+
+result=$(sqlite3 "$DB_PATH" "SELECT name FROM sqlite_master WHERE type='trigger' AND name='prevent_artifact_self_review';")
+assert_equals "prevent_artifact_self_review" "$result" "prevent_artifact_self_review trigger exists"
+
 result=$(sqlite3 "$DB_PATH" "SELECT name FROM sqlite_master WHERE type='trigger' AND name='auto_complete_mission';")
 assert_equals "auto_complete_mission" "$result" "auto_complete_mission trigger exists"
 
@@ -37,5 +43,25 @@ assert_equals "auto_reopen_mission" "$result" "auto_reopen_mission trigger exist
 result=$(sqlite3 "$DB_PATH" "PRAGMA table_info(agents);" | awk -F'|' '{print $2}' | grep -c "last_read_id" || true)
 assert_equals "1" "$result" "agents has last_read_id column"
 
+result=$(sqlite3 "$DB_PATH" "PRAGMA table_info(mission_state);" | awk -F'|' '{print $2}' | grep -c "artifact_author" || true)
+assert_equals "1" "$result" "mission_state has artifact_author column"
+
 result=$(sqlite3 "$DB_PATH" "SELECT status FROM mission_state WHERE id=1;")
 assert_equals "running" "$result" "mission_state starts in running status"
+
+rm -f "$DB_PATH"
+sqlite3 "$DB_PATH" << 'SQL'
+CREATE TABLE mission_state (
+  id                  INTEGER PRIMARY KEY CHECK (id = 1),
+  status              TEXT NOT NULL DEFAULT 'running'
+                        CHECK (status IN ('running', 'review', 'completed')),
+  artifact_filename   TEXT,
+  artifact_written_at DATETIME,
+  completed_at        DATETIME,
+  updated_at          DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+INSERT INTO mission_state (id, status) VALUES (1, 'running');
+SQL
+"$SCRIPTS_DIR/init_db.sh" > /dev/null
+result=$(sqlite3 "$DB_PATH" "PRAGMA table_info(mission_state);" | awk -F'|' '{print $2}' | grep -c "artifact_author" || true)
+assert_equals "1" "$result" "init_db migrates old mission_state with artifact_author"

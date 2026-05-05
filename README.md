@@ -4,9 +4,96 @@
 
 ## English
 
-A decentralized autonomous system where multiple AI agents share a SQLite blackboard and make decisions through peer review. Agents run as tmux panes and call `claude --print` to return actions in JSON format.
+A decentralized autonomous system where multiple AI agents share a SQLite blackboard and make decisions through peer review. Agents run as tmux panes and call a configurable LLM provider to return actions in JSON format.
+
+This repository is also prepared as a research prototype for a Zenodo DOI release. It is a technical-report / working-paper artifact, not a peer-reviewed paper. The implementation is the live development space; the `paper/` directory contains the fixed research framing, evaluation plan, and release notes.
+
+## Research Motivation
+
+Most practical LLM-agent systems use a central manager, graph, router, or workflow engine to decide which agent acts next. This project explores a different question: can peer LLM agents coordinate through a shared blackboard and lightweight governance rules without a standing central orchestrator?
+
+The goal is not to claim that decentralized coordination is generally superior. The goal is to make the design concrete enough to inspect, run, log, and compare against simpler baselines.
+
+This project is not primarily a productivity benchmark against AutoGen, CrewAI, LangGraph, or similar orchestration frameworks. Those systems are important, but they usually focus on arranging specialized agents and work handoffs so that software tasks can be completed more efficiently, often with productivity, reliability, and token-cost tradeoffs in view. This project instead treats decentralized multi-agent coordination as a small social-system experiment. The research question is whether autonomous peer coordination can make progress toward an initially underspecified goal when no single actor has complete expertise, authority, or resources. Productivity or cost reduction may appear in specific domains, but it is not the main objective of this prototype.
+
+As a research prototype, this project also helps organize practical challenges in realizing decentralized organizations with LLM agents. The current implementation addresses two narrow pieces: making a decision phase explicit, and making expected artifacts and their acceptance criteria explicit. A larger organizational question remains open: an organization may not exist only to produce artifacts. Clarifying organizational purpose beyond deliverable production is future research, not a claim made by this implementation.
+
+The project can also be read as an early case of using LLM agents to make organization-theory questions executable and observable. In this repository, that case is limited to decentralized decision making and artifact review. Related future applications could include education research, such as comparing learning outcomes under different teacher-to-learner ratios with LLM-supported simulation or analysis, and political science research, such as exploratory models of voting behavior. Those applications are outside the current implementation and would require domain-specific experimental designs, validation data, and ethical review.
+
+## What this project explores
+
+- Shared-state coordination through SQLite as a blackboard.
+- Peer proposal and voting instead of manager-only decisions.
+- Artifact review as a separate phase from ordinary discussion.
+- Explicit decision phases and artifact definitions as minimal organizational scaffolding.
+- LLM-agent prototypes as a way to operationalize selected organization-theory questions.
+- Minimal governance rules that can be enforced by database constraints and triggers.
+- Failure modes such as proposal churn, role duplication, invalid self-vote behavior, and stalled convergence.
+
+For the detailed working-paper draft, see [`paper/technical-report.md`](paper/technical-report.md).
 
 ## Architecture
+
+At a high level, each agent runs the same loop: read the mission and blackboard state, ask an LLM for JSON actions, write those actions to SQLite, export human-readable logs, and repeat. The architecture is closest to a blackboard system: agents do not directly control one another, and the database stores both working context and governance events.
+
+See [`paper/figures.md`](paper/figures.md) for Mermaid diagrams.
+
+## Decision Protocol
+
+- Proposal decisions: two `APPROVE` votes mark a proposal as `DECIDED`.
+- Duplicate proposal votes by the same reviewer are blocked by a SQLite `UNIQUE` constraint.
+- Proposal self-votes are rejected by the `prevent_self_vote` SQLite trigger.
+- `REJECT` comments are required by agent instructions to include an alternative.
+- Artifact review: `write_artifact` moves the mission into review; two artifact approvals complete the mission; one artifact rejection reopens it.
+
+Some norms are still prompt-level rather than schema-level. For example, `REJECT` alternatives are required by agent instructions, not by a database constraint.
+
+## Reproducibility
+
+Run the test suite:
+
+```bash
+bash tests/run_tests.sh
+```
+
+For research runs, record the commit hash, model/provider, number of agents, mission prompt, final state, proposals, votes, artifact outputs, human interventions, and reproducibility notes. Use [`paper/experiment-log-template.md`](paper/experiment-log-template.md).
+
+Generated runtime files such as `db/*.db`, `whole_conversation_doc.md`, and `peer_review_doc.md` are ignored by default. Curated sample runs should be copied into an explicit experiment directory before release.
+
+## Evaluation Plan
+
+The planned comparison set is:
+
+- single-agent baseline;
+- central manager-agent baseline;
+- decentralized blackboard version;
+- human-in-the-loop version or post-run human review condition.
+
+Metrics include task completion rate, time to decision, messages until decision, proposal count, approve/reject ratio, artifact acceptance rate, human intervention points, token cost, wall-clock time, reproducibility, and human-rated artifact quality. Human-in-the-loop is not implemented as a core result in this release. A more composable approach may be to keep the agent system focused on producing artifacts and logs, then have humans review those outputs externally, optionally with LLM-assisted review tools. See [`paper/evaluation-plan.md`](paper/evaluation-plan.md).
+
+## Citation
+
+Citation metadata is provided in [`CITATION.cff`](CITATION.cff). Until a DOI is minted, cite the GitHub repository and version tag. After Zenodo publication, the DOI should be added here and to `CITATION.cff`.
+
+## Limitations
+
+- This is a local shell/Ruby/SQLite prototype, not production infrastructure.
+- Current evidence is limited to implementation tests and sample runs, not controlled experiments.
+- Output quality is not automatically or independently evaluated.
+- Several governance rules are prompt-level and may be ignored by a model.
+- Deadlock handling, role occupancy, richer quorum rules, and richer reviewer eligibility rules are future work.
+- Human-in-the-loop design is treated as future evaluation work, not as a claimed contribution of the current prototype.
+
+## Roadmap
+
+- Add curated sample runs using the current schema.
+- Export structured experiment metrics from SQLite.
+- Add token and wall-clock accounting.
+- Compare against single-agent and central manager-agent baselines.
+- Add richer reviewer eligibility rules for quorum and conflict-of-interest handling.
+- Prepare a v0.1.0 GitHub release linked to Zenodo.
+
+## Runtime Architecture
 
 ```
 ┌─────────────────────────────────────────────────────┐
@@ -27,8 +114,8 @@ Each agent runs an independent loop:
 
 1. Read unread messages and undecided proposals from the SQLite blackboard.
 2. Exit if `mission_state.status = completed`.
-3. Pass the mission from `purpose_doc.md` and the current state to `claude --print`.
-4. Parse the JSON action returned by Claude and write it to the database.
+3. Pass the mission from `purpose_doc.md` and the current state to `scripts/llm_call.sh`.
+4. Parse the JSON action returned by the configured LLM provider and write it to the database.
 5. Export Markdown documents and sleep (10 seconds by default).
 
 ## Decision Rules
@@ -36,6 +123,8 @@ Each agent runs an independent loop:
 - **2 APPROVE -> DECIDED**: A SQLite trigger updates the status automatically.
 - **REJECT**: Return to discussion. Every rejection comment must include an alternative.
 - **Duplicate votes by the same agent**: Rejected by a UNIQUE constraint.
+- **Proposal self-votes**: Rejected by the `prevent_self_vote` trigger.
+- **Artifact self-reviews**: Rejected by the `prevent_artifact_self_review` trigger.
 - **Artifact review**: After `write_artifact`, `mission_state.status = review`. Two `APPROVE` votes on `review_artifact` mark the mission as `completed`, while one `REJECT` returns it to `running`.
 
 ## File Layout
@@ -47,8 +136,9 @@ Each agent runs an independent loop:
 | `agents/agent.sh` | Main agent loop |
 | `scripts/init_db.sh` | Initialize the SQLite schema (tables and triggers) |
 | `scripts/db_write.sh` | Database write CLI for agents |
+| `scripts/llm_call.sh` | Provider adapter for Claude, Codex, Ollama, custom commands, and OpenAI-compatible APIs |
 | `scripts/export_docs.sh` | Export SQLite data to Markdown |
-| `scripts/extract_json.rb` | Extract JSON from Claude responses |
+| `scripts/extract_json.rb` | Extract JSON from LLM responses |
 | `scripts/run_actions.rb` | Execute action JSON |
 | `scripts/launch.sh` | Launch multiple agents in a tmux session |
 | `scripts/reset_purpose.sh` | Archive the conversation state and replace the mission |
@@ -62,7 +152,9 @@ Each agent runs an independent loop:
 sqlite3 --version   # SQLite 3.x
 tmux -V             # tmux 3.x
 ruby --version      # Ruby (mise recommended)
-claude --version    # Claude Code CLI
+claude --version    # Claude Code CLI, if using LLM_PROVIDER=claude
+codex --version     # Codex CLI, if using LLM_PROVIDER=codex
+ollama --version    # Ollama, if using LLM_PROVIDER=ollama
 
 # Install on macOS
 brew install sqlite tmux
@@ -154,10 +246,12 @@ agents     (id, name, role, status, last_seen, last_read_id)
 messages   (id, sender, recipient, content, created_at)
 proposals  (id, proposer, title, content, status, created_at)
 reviews    (id, proposal_id, reviewer, vote, comment, created_at)
-mission_state    (id, status, artifact_filename, artifact_written_at, completed_at, updated_at)
+mission_state    (id, status, artifact_filename, artifact_author, artifact_written_at, completed_at, updated_at)
 artifact_reviews (id, filename, reviewer, vote, comment, created_at)
 ```
 
+The `prevent_self_vote` trigger rejects review rows where the proposal proposer and reviewer are the same agent.
+The `prevent_artifact_self_review` trigger rejects artifact review rows where the artifact author and reviewer are the same agent.
 The `auto_decide` trigger updates `proposals.status` to `DECIDED` when two or more `APPROVE` votes exist after an INSERT into `reviews`.
 The `auto_complete_mission` trigger updates `mission_state.status` to `completed` when two or more `APPROVE` votes exist for the same artifact after an INSERT into `artifact_reviews`.
 The `auto_reopen_mission` trigger returns `mission_state.status` to `running` when an artifact review is `REJECT`.
@@ -187,7 +281,7 @@ Each agent returns JSON like this:
 
 ```bash
 bash tests/run_tests.sh
-# Results: 44 passed, 0 failed
+# Results: 67 passed, 0 failed
 ```
 
 ## Environment Variables
@@ -198,10 +292,39 @@ bash tests/run_tests.sh
 | `LOOP_INTERVAL` | `10` | Loop interval in seconds |
 | `LOOP_MAX` | `0` (infinite) | For tests: stop after the specified number of loops |
 | `EXPORT_DIR` | Project root | Markdown export destination |
+| `SQLITE_BUSY_TIMEOUT_MS` | `5000` | SQLite busy timeout in milliseconds for concurrent agent reads/writes |
+| `LLM_PROVIDER` | `claude` | Provider used by `scripts/llm_call.sh`: `claude`, `codex`, `ollama`, or `openai-compatible` |
+| `LLM_MODEL` | empty | Model name for providers that require one |
+| `LLM_ENDPOINT` | empty | Chat completions endpoint for OpenAI-compatible providers |
+| `LLM_API_KEY` | empty | Optional bearer token for OpenAI-compatible providers |
+| `LLM_TEMPERATURE` | `0.2` | Temperature used by OpenAI-compatible providers |
+| `LLM_CMD` | empty | Custom stdin-to-stdout command. When set, it overrides `LLM_PROVIDER` |
+
+### LLM provider examples
+
+```bash
+# Default Claude Code CLI backend
+LLM_PROVIDER=claude scripts/launch.sh agent-alpha agent-beta agent-gamma
+
+# Codex CLI backend. The adapter runs codex exec with read-only sandboxing.
+LLM_PROVIDER=codex LLM_MODEL=gpt-5.2 scripts/launch.sh agent-alpha agent-beta agent-gamma
+
+# Ollama CLI backend
+LLM_PROVIDER=ollama LLM_MODEL=qwen2.5-coder:14b scripts/launch.sh agent-alpha agent-beta agent-gamma
+
+# OpenAI-compatible local endpoint, such as Ollama or LM Studio
+LLM_PROVIDER=openai-compatible \
+LLM_ENDPOINT=http://localhost:11434/v1/chat/completions \
+LLM_MODEL=qwen2.5-coder:14b \
+scripts/launch.sh agent-alpha agent-beta agent-gamma
+
+# Any custom command that reads stdin and writes a model response to stdout
+LLM_CMD='my-llm-command --json' scripts/launch.sh agent-alpha agent-beta agent-gamma
+```
 
 ## 日本語
 
-N個のAIエージェントがSQLiteブラックボードを共有し、ピアレビューで意思決定する自律分散システム。エージェントはtmuxペインとして動作し、`claude --print` を呼び出してJSON形式のアクションを返す。
+N個のAIエージェントがSQLiteブラックボードを共有し、ピアレビューで意思決定する自律分散システム。エージェントはtmuxペインとして動作し、設定されたLLM providerを呼び出してJSON形式のアクションを返す。
 
 ## アーキテクチャ
 
@@ -224,8 +347,8 @@ N個のAIエージェントがSQLiteブラックボードを共有し、ピア�
 
 1. SQLiteブラックボードから未読メッセージ・未決プロポーザルを読む
 2. `mission_state.status = completed` なら終了する
-3. `purpose_doc.md` のミッションと現在の状態を `claude --print` に渡す
-4. Claude が返したJSONアクションを解析し、DBに書き込む
+3. `purpose_doc.md` のミッションと現在の状態を `scripts/llm_call.sh` に渡す
+4. 設定されたLLM providerが返したJSONアクションを解析し、DBに書き込む
 5. Markdownドキュメントをエクスポートして睡眠（デフォルト10秒）
 
 ## 意思決定ルール
@@ -233,6 +356,8 @@ N個のAIエージェントがSQLiteブラックボードを共有し、ピア�
 - **2 APPROVE → DECIDED**: SQLiteトリガーが自動的にステータスを更新
 - **REJECT**: 再議論。コメントには必ず代替案を含める
 - **同一エージェントの二重投票**: UNIQUE制約で拒否
+- **proposalの自己投票**: `prevent_self_vote` トリガーで拒否
+- **成果物の自己レビュー**: `prevent_artifact_self_review` トリガーで拒否
 - **成果物レビュー**: `write_artifact` 後に `mission_state.status = review` となり、`review_artifact` の2 APPROVEで `completed`、1 REJECTで `running` に戻る
 
 ## ファイル構成
@@ -244,8 +369,9 @@ N個のAIエージェントがSQLiteブラックボードを共有し、ピア�
 | `agents/agent.sh` | メインエージェントループ |
 | `scripts/init_db.sh` | SQLiteスキーマ初期化（テーブル＋トリガー） |
 | `scripts/db_write.sh` | エージェント用DB書き込みCLI |
+| `scripts/llm_call.sh` | Claude、Codex、Ollama、custom command、OpenAI互換API用provider adapter |
 | `scripts/export_docs.sh` | SQLite → Markdown エクスポート |
-| `scripts/extract_json.rb` | Claude応答からJSONを抽出 |
+| `scripts/extract_json.rb` | LLM応答からJSONを抽出 |
 | `scripts/run_actions.rb` | アクションJSONを実行 |
 | `scripts/launch.sh` | tmuxセッションで複数エージェント起動 |
 | `scripts/reset_purpose.sh` | 会話状態をアーカイブしてミッションを差し替える |
@@ -259,7 +385,9 @@ N個のAIエージェントがSQLiteブラックボードを共有し、ピア�
 sqlite3 --version   # SQLite 3.x
 tmux -V             # tmux 3.x
 ruby --version      # Ruby (mise推奨)
-claude --version    # Claude Code CLI
+claude --version    # LLM_PROVIDER=claude の場合
+codex --version     # LLM_PROVIDER=codex の場合
+ollama --version    # LLM_PROVIDER=ollama の場合
 
 # macOSでのインストール
 brew install sqlite tmux
@@ -351,10 +479,12 @@ agents     (id, name, role, status, last_seen, last_read_id)
 messages   (id, sender, recipient, content, created_at)
 proposals  (id, proposer, title, content, status, created_at)
 reviews    (id, proposal_id, reviewer, vote, comment, created_at)
-mission_state    (id, status, artifact_filename, artifact_written_at, completed_at, updated_at)
+mission_state    (id, status, artifact_filename, artifact_author, artifact_written_at, completed_at, updated_at)
 artifact_reviews (id, filename, reviewer, vote, comment, created_at)
 ```
 
+`prevent_self_vote` トリガーが、proposalの提案者とreviewerが同一エージェントであるreview行を拒否する。
+`prevent_artifact_self_review` トリガーが、成果物の作成者とreviewerが同一エージェントであるartifact review行を拒否する。
 `auto_decide` トリガーが `reviews` への INSERT後に APPROVE が2件以上あれば `proposals.status` を `DECIDED` に更新する。
 `auto_complete_mission` トリガーが `artifact_reviews` への INSERT後に同じ成果物の APPROVE が2件以上あれば `mission_state.status` を `completed` に更新する。
 `auto_reopen_mission` トリガーが成果物レビューの REJECT で `mission_state.status` を `running` に戻す。
@@ -384,7 +514,7 @@ artifact_reviews (id, filename, reviewer, vote, comment, created_at)
 
 ```bash
 bash tests/run_tests.sh
-# Results: 44 passed, 0 failed
+# Results: 67 passed, 0 failed
 ```
 
 ## 環境変数
@@ -395,3 +525,10 @@ bash tests/run_tests.sh
 | `LOOP_INTERVAL` | `10` | ループ間隔（秒） |
 | `LOOP_MAX` | `0`（無限） | テスト用：指定回数でループ終了 |
 | `EXPORT_DIR` | プロジェクトルート | Markdownエクスポート先 |
+| `SQLITE_BUSY_TIMEOUT_MS` | `5000` | 複数agentの同時読み書き向けSQLite busy timeout（ミリ秒） |
+| `LLM_PROVIDER` | `claude` | `scripts/llm_call.sh` が使うprovider: `claude`, `codex`, `ollama`, `openai-compatible` |
+| `LLM_MODEL` | 空 | providerが必要とするmodel名 |
+| `LLM_ENDPOINT` | 空 | OpenAI互換provider用chat completions endpoint |
+| `LLM_API_KEY` | 空 | OpenAI互換provider用の任意bearer token |
+| `LLM_TEMPERATURE` | `0.2` | OpenAI互換provider用temperature |
+| `LLM_CMD` | 空 | stdinを読みstdoutへ応答を書くcustom command。設定時は`LLM_PROVIDER`より優先 |

@@ -7,6 +7,7 @@ SCRIPTS_DIR="$(dirname "$0")/../scripts"
 rm -f "$DB_PATH"
 "$SCRIPTS_DIR/init_db.sh" > /dev/null
 sqlite3 "$DB_PATH" "INSERT INTO agents (name, role) VALUES ('agent-test', 'Tester');"
+sqlite3 "$DB_PATH" "INSERT INTO agents (name, role) VALUES ('agent-reviewer', 'Reviewer');"
 
 # Test: post_message
 DB_PATH="$DB_PATH" "$SCRIPTS_DIR/db_write.sh" post_message agent-test ALL "Hello everyone"
@@ -26,8 +27,8 @@ assert_equals "OPEN" "$status" "new proposal has OPEN status"
 
 # Test: vote APPROVE
 pid=$(sqlite3 "$DB_PATH" "SELECT id FROM proposals WHERE proposer='agent-test';")
-DB_PATH="$DB_PATH" "$SCRIPTS_DIR/db_write.sh" vote agent-test "$pid" APPROVE "Looks good"
-result=$(sqlite3 "$DB_PATH" "SELECT vote FROM reviews WHERE reviewer='agent-test' AND proposal_id=$pid;")
+DB_PATH="$DB_PATH" "$SCRIPTS_DIR/db_write.sh" vote agent-reviewer "$pid" APPROVE "Looks good"
+result=$(sqlite3 "$DB_PATH" "SELECT vote FROM reviews WHERE reviewer='agent-reviewer' AND proposal_id=$pid;")
 assert_equals "APPROVE" "$result" "vote writes APPROVE"
 
 # Test: vote REJECT
@@ -38,7 +39,24 @@ assert_equals "REJECT" "$result" "vote writes REJECT"
 
 # Test: duplicate vote rejected by UNIQUE constraint
 set +e
-DB_PATH="$DB_PATH" "$SCRIPTS_DIR/db_write.sh" vote agent-test "$pid" APPROVE "Again" 2>/dev/null
+DB_PATH="$DB_PATH" "$SCRIPTS_DIR/db_write.sh" vote agent-reviewer "$pid" APPROVE "Again" 2>/dev/null
 exit_code=$?
 set -e
 assert_equals "1" "$exit_code" "duplicate vote from same agent fails"
+
+# Test: busy timeout waits for a short write lock instead of failing immediately
+sqlite3 "$DB_PATH" "BEGIN EXCLUSIVE; INSERT INTO messages (sender, recipient, content) VALUES ('locker', 'ALL', 'holding lock');" &
+locker_pid=$!
+sleep 0.2
+
+DB_PATH="$DB_PATH" SQLITE_BUSY_TIMEOUT_MS=3000 \
+  "$SCRIPTS_DIR/db_write.sh" post_message agent-test ALL "after lock" &
+writer_pid=$!
+
+sleep 0.5
+kill "$locker_pid" 2>/dev/null || true
+wait "$locker_pid" 2>/dev/null || true
+wait "$writer_pid"
+
+result=$(sqlite3 "$DB_PATH" "SELECT content FROM messages WHERE content='after lock';")
+assert_equals "after lock" "$result" "db_write waits for busy database lock"

@@ -13,10 +13,8 @@ fi
 
 SESSION="autonomous"
 
-if [ ! -f "$PROJECT_ROOT/db/collective.db" ]; then
-  echo "Initializing database..."
-  "$PROJECT_ROOT/scripts/init_db.sh"
-fi
+echo "Ensuring database schema..."
+"$PROJECT_ROOT/scripts/init_db.sh"
 
 tmux kill-session -t "$SESSION" 2>/dev/null || true
 

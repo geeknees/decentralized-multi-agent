@@ -6,6 +6,7 @@ set -euo pipefail
 
 PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 DB_PATH="${DB_PATH:-$PROJECT_ROOT/db/collective.db}"
+SQLITE_BUSY_TIMEOUT_MS="${SQLITE_BUSY_TIMEOUT_MS:-5000}"
 NEW_PURPOSE="${1:-}"
 
 TIMESTAMP=$(date +%Y%m%d-%H%M%S)
@@ -21,7 +22,9 @@ fi
 # Archive current purpose_doc and any artifact files
 cp "$PROJECT_ROOT/purpose_doc.md" "$ARCHIVE_DIR/purpose_doc.md" 2>/dev/null || true
 
-ARTIFACT_FILES=$(sqlite3 "$DB_PATH" \
+"$PROJECT_ROOT/scripts/init_db.sh" > /dev/null
+
+ARTIFACT_FILES=$(sqlite3 -cmd ".timeout $SQLITE_BUSY_TIMEOUT_MS" "$DB_PATH" \
   "SELECT DISTINCT filename FROM artifacts;" 2>/dev/null || true)
 
 # Archive markdown artifacts listed in purpose_doc (best-effort)
@@ -36,7 +39,7 @@ for f in "$PROJECT_ROOT"/*.md; do
 done
 
 # Soft reset: clear conversation state, preserve agent list structure
-sqlite3 "$DB_PATH" << 'SQL'
+sqlite3 -cmd ".timeout $SQLITE_BUSY_TIMEOUT_MS" "$DB_PATH" << 'SQL'
 DELETE FROM artifact_reviews;
 DELETE FROM reviews;
 DELETE FROM proposals;
@@ -47,6 +50,7 @@ VALUES (1, 'running', NULL, NULL, NULL, CURRENT_TIMESTAMP)
 ON CONFLICT(id) DO UPDATE SET
   status = 'running',
   artifact_filename = NULL,
+  artifact_author = NULL,
   artifact_written_at = NULL,
   completed_at = NULL,
   updated_at = CURRENT_TIMESTAMP;

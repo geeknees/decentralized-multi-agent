@@ -10,11 +10,12 @@ rm -f "$DB_PATH"
 sqlite3 "$DB_PATH" << 'SQL'
 INSERT INTO agents (name, role) VALUES ('agent-a', 'Researcher');
 INSERT INTO agents (name, role) VALUES ('agent-b', 'Critic');
+INSERT INTO agents (name, role) VALUES ('agent-c', 'Synthesizer');
 INSERT INTO messages (sender, recipient, content) VALUES ('agent-a', 'ALL', 'Hello | from agent-a' || char(10) || 'second line');
 INSERT INTO messages (sender, recipient, content) VALUES ('agent-b', 'agent-a', 'Reply from agent-b');
 INSERT INTO proposals (proposer, title, content) VALUES ('agent-a', 'Test | Proposal', 'Proposal body | here' || char(10) || 'next line');
-INSERT INTO reviews (proposal_id, reviewer, vote, comment) VALUES (1, 'agent-a', 'APPROVE', 'Good | enough' || char(10) || 'Ship it');
-INSERT INTO reviews (proposal_id, reviewer, vote, comment) VALUES (1, 'agent-b', 'APPROVE', 'Agree');
+INSERT INTO reviews (proposal_id, reviewer, vote, comment) VALUES (1, 'agent-b', 'APPROVE', 'Good | enough' || char(10) || 'Ship it');
+INSERT INTO reviews (proposal_id, reviewer, vote, comment) VALUES (1, 'agent-c', 'APPROVE', 'Agree');
 UPDATE mission_state SET status='review', artifact_filename='output.md', artifact_written_at=CURRENT_TIMESTAMP;
 INSERT INTO artifact_reviews (filename, reviewer, vote, comment) VALUES ('output.md', 'agent-a', 'APPROVE', 'Complete | ready' || char(10) || 'Ship it');
 SQL
@@ -46,6 +47,7 @@ assert_contains "APPROVE" "$pr" "peer_review shows votes"
 assert_contains "Good \\| enough<br>Ship it" "$pr" "peer_review escapes review comments for markdown tables"
 assert_contains "Complete \\| ready<br>Ship it" "$pr" "peer_review escapes artifact review comments for markdown tables"
 assert_contains "Mission Completion" "$pr" "peer_review shows mission section"
+assert_contains "Artifact author" "$pr" "peer_review shows artifact author"
 assert_contains "output.md" "$pr" "peer_review shows artifact review"
 
 rm -rf "$EXPORT_DIR"

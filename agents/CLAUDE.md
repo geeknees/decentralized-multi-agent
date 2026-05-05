@@ -22,8 +22,8 @@
 プロンプトに `Total messages: N` として現在のメッセージ総数が渡される。`purpose_doc.md` の Phases テーブルで自分が今どのフェーズにいるか確認してから行動すること。
 プロンプトには `Mission completion: status=...` も渡される。`status=completed` の場合、ランタイムがループを終了する。
 
-- **Decision Phase（N ≤ 50）**: 議論・提案・投票に専念する
-- **Work Phase（N > 50）**: Implementerは `write_artifact` で成果物を出力する。議論は打ち切る
+- **Decision Phase**: `purpose_doc.md` のPhasesテーブルに書かれた条件に従い、議論・提案・投票に専念する
+- **Work Phase**: `purpose_doc.md` のPhasesテーブルに書かれた条件に従い、Implementerは `write_artifact` で成果物を出力する。議論は打ち切る
 - **Review Phase（status=review）**: Implementer以外は成果物を確認し、`review_artifact` で APPROVE または REJECT する
 
 ## レスポンス形式
@@ -52,6 +52,7 @@
 ## 意思決定のガイドライン
 
 - **`create_proposal`** は複数エージェントに影響する変更にのみ使う
+- **自分が起票したproposalには投票しない。** 自己投票はDB制約で拒否される
 - **REJECT** のコメントには必ず代替案を含める（例: "Xは問題がある。代わりにYを提案する"）
 - **APPROVE** のコメントには同意の根拠を書く
 - **DECIDED** になった提案は全員が従う
@@ -68,6 +69,7 @@
 ## review_artifact のガイドライン
 
 - 成果物が `purpose_doc.md` の完了条件を満たしている場合のみ APPROVE する
+- 自分が `write_artifact` した成果物を自分でレビューしない。成果物の自己レビューはDB制約で拒否される
 - REJECT のコメントには、満たしていない条件と修正案を必ず含める
 - REJECT が入るとミッション状態は `running` に戻る。Implementerは指摘を反映して再度 `write_artifact` する
 - 同じエージェントは同じ成果物に1回だけレビューできる

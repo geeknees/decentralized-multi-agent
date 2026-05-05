@@ -6,13 +6,14 @@ set -euo pipefail
 
 DB_PATH="${DB_PATH:-$(dirname "$0")/../db/collective.db}"
 EXPORT_DIR="${EXPORT_DIR:-$(dirname "$0")/..}"
+SQLITE_BUSY_TIMEOUT_MS="${SQLITE_BUSY_TIMEOUT_MS:-5000}"
 COLUMN_SEPARATOR=$'\x1f'
 ROW_SEPARATOR=$'\x1e'
 
 mkdir -p "$EXPORT_DIR"
 
 sqlite_stream() {
-  sqlite3 -separator "$COLUMN_SEPARATOR" -newline "$ROW_SEPARATOR" "$DB_PATH" "$1"
+  sqlite3 -cmd ".timeout $SQLITE_BUSY_TIMEOUT_MS" -separator "$COLUMN_SEPARATOR" -newline "$ROW_SEPARATOR" "$DB_PATH" "$1"
 }
 
 print_blockquote() {
@@ -61,14 +62,15 @@ escape_table_cell() {
   echo ""
   echo "## Mission Completion"
   echo ""
-  while IFS="$COLUMN_SEPARATOR" read -r -d "$ROW_SEPARATOR" mission_status artifact_filename completed_at; do
+  while IFS="$COLUMN_SEPARATOR" read -r -d "$ROW_SEPARATOR" mission_status artifact_filename artifact_author completed_at; do
     echo "**Status:** $mission_status  "
     echo "**Artifact:** $artifact_filename  "
+    echo "**Artifact author:** $artifact_author  "
     if [ -n "$completed_at" ]; then
       echo "**Completed at:** $completed_at  "
     fi
   done < <(
-    sqlite_stream "SELECT COALESCE(status, ''), COALESCE(artifact_filename, 'none'), COALESCE(completed_at, '') FROM mission_state WHERE id=1;"
+    sqlite_stream "SELECT COALESCE(status, ''), COALESCE(artifact_filename, 'none'), COALESCE(artifact_author, 'none'), COALESCE(completed_at, '') FROM mission_state WHERE id=1;"
   )
   echo ""
   echo "| Artifact | Reviewer | Vote | Comment |"

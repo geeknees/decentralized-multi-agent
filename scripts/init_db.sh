@@ -5,9 +5,10 @@
 set -euo pipefail
 
 DB_PATH="${DB_PATH:-$(dirname "$0")/../db/collective.db}"
+SQLITE_BUSY_TIMEOUT_MS="${SQLITE_BUSY_TIMEOUT_MS:-5000}"
 mkdir -p "$(dirname "$DB_PATH")"
 
-sqlite3 "$DB_PATH" << 'SQL'
+sqlite3 -cmd ".timeout $SQLITE_BUSY_TIMEOUT_MS" "$DB_PATH" << 'SQL'
 CREATE TABLE IF NOT EXISTS agents (
   id           INTEGER PRIMARY KEY AUTOINCREMENT,
   name         TEXT UNIQUE NOT NULL,
@@ -49,6 +50,7 @@ CREATE TABLE IF NOT EXISTS mission_state (
   status              TEXT NOT NULL DEFAULT 'running'
                         CHECK (status IN ('running', 'review', 'completed')),
   artifact_filename   TEXT,
+  artifact_author     TEXT,
   artifact_written_at DATETIME,
   completed_at        DATETIME,
   updated_at          DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -65,9 +67,34 @@ CREATE TABLE IF NOT EXISTS artifact_reviews (
 );
 
 INSERT OR IGNORE INTO mission_state (id, status) VALUES (1, 'running');
+SQL
 
+if ! sqlite3 -cmd ".timeout $SQLITE_BUSY_TIMEOUT_MS" "$DB_PATH" "PRAGMA table_info(mission_state);" \
+  | awk -F'|' '$2 == "artifact_author" { found = 1 } END { exit(found ? 0 : 1) }'; then
+  sqlite3 -cmd ".timeout $SQLITE_BUSY_TIMEOUT_MS" "$DB_PATH" "ALTER TABLE mission_state ADD COLUMN artifact_author TEXT;"
+fi
+
+sqlite3 -cmd ".timeout $SQLITE_BUSY_TIMEOUT_MS" "$DB_PATH" << 'SQL'
+
+DROP TRIGGER IF EXISTS prevent_self_vote;
+DROP TRIGGER IF EXISTS prevent_artifact_self_review;
 DROP TRIGGER IF EXISTS auto_complete_mission;
 DROP TRIGGER IF EXISTS auto_reopen_mission;
+
+CREATE TRIGGER IF NOT EXISTS prevent_self_vote
+BEFORE INSERT ON reviews
+WHEN NEW.reviewer = (SELECT proposer FROM proposals WHERE id = NEW.proposal_id)
+BEGIN
+  SELECT RAISE(ABORT, 'proposal proposer cannot vote on their own proposal');
+END;
+
+CREATE TRIGGER IF NOT EXISTS prevent_artifact_self_review
+BEFORE INSERT ON artifact_reviews
+WHEN NEW.reviewer = (SELECT artifact_author FROM mission_state
+                     WHERE id = 1 AND artifact_filename = NEW.filename)
+BEGIN
+  SELECT RAISE(ABORT, 'artifact author cannot review their own artifact');
+END;
 
 CREATE TRIGGER IF NOT EXISTS auto_decide
 AFTER INSERT ON reviews
