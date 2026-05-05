@@ -155,9 +155,11 @@ The next stage should evaluate the architecture with controlled runs, fixed prom
 - a single-agent baseline;
 - a central manager-agent baseline;
 - the decentralized blackboard version;
-- a human-in-the-loop version.
+- a human-in-the-loop version or post-run human review condition.
 
 Primary metrics should include task completion rate, time to decision, messages until decision, proposal count, approve/reject ratio, duplicate vote prevention, artifact acceptance rate, human intervention points, token cost, wall-clock time, reproducibility across repeated runs, and human-rated final artifact quality.
+
+A Human-in-the-Loop condition should be treated carefully because it can mean different system designs. One option is embedded human control, where the runtime pauses for human approval at selected proposal or artifact-review points. Another option is external human review, where the decentralized agent system produces artifacts and auditable logs, and humans inspect those outputs outside the core software. The second approach may improve composability: review procedures can be swapped, domain experts can use their own tools, and LLM-assisted review can be added without making the agent runtime responsible for every evaluation workflow. In this report, Human-in-the-Loop is therefore an evaluation direction, not a demonstrated contribution of the prototype.
 
 Experiments should vary:
 
@@ -169,7 +171,7 @@ Experiments should vary:
 - whether proposal self-vote prevention is enabled;
 - whether artifact review is enabled;
 - whether artifact self-review prevention is enabled;
-- whether a human can intervene.
+- whether human oversight is embedded in the runtime or performed as external artifact/log review.
 
 Each run should be logged with commit hash, model/provider, initial mission, database export, artifact outputs, failure modes, and reproducibility notes. The template in `experiment-log-template.md` provides a starting format.
 
@@ -221,6 +223,8 @@ Sixth, reproducibility is currently partial. Source code and tests are versionab
 
 Seventh, the prototype treats organizational activity as mission-driven artifact production and review. This is useful for reproducible experiments, but it does not settle whether a decentralized organization should be defined by artifacts, ongoing purpose, member development, shared values, environmental adaptation, or other non-artifact functions.
 
+Eighth, Human-in-the-Loop evaluation is not implemented as a core system result. The current code can generate artifacts and logs for human inspection, but it does not define a full embedded approval interface, reviewer workflow, or LLM-assisted external review protocol. This omission is intentional for the current report: keeping human review outside the runtime may make the method more composable and easier to adapt across domains, but that design choice still needs evaluation.
+
 Finally, the project should not be framed as evidence that decentralized governance is generally superior to centralized orchestration. The current contribution is an inspectable design and implementation that makes such questions testable.
 
 ## 12. Future Work
@@ -233,6 +237,7 @@ Near-term work should focus on reproducibility and evaluation:
 - implement experiment IDs and run manifests;
 - run repeated baseline comparisons;
 - add a human rating rubric for final artifacts.
+- define external human review templates for generated artifacts and exported logs.
 
 Protocol-level work should include:
 
@@ -243,12 +248,14 @@ Protocol-level work should include:
 - deadlock detection;
 - richer artifact-review versioning;
 - policy gates for irreversible or risky actions.
+- optional embedded human approval checkpoints for high-risk decisions, kept separate from the core decentralized protocol.
 
 Research-facing work should include:
 
 - a formal related-work review expanded from `paper/related-work-notes.md`;
 - a separate inquiry into decentralized organizational purpose beyond artifact production;
 - a methodological note on using LLM-agent prototypes as cases for organization-theory research;
+- comparison of embedded Human-in-the-Loop control with external human review, including LLM-assisted review of generated artifacts and logs;
 - domain-specific study designs for education research, such as teacher-to-learner ratio and learning-outcome comparisons, where appropriate validation data are available;
 - cautious exploration of non-core domains such as political voting behavior, with explicit attention to validation, bias, and ethics;
 - controlled comparison with manager-worker orchestration;

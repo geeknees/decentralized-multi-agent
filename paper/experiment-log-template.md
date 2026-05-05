@@ -45,6 +45,7 @@ TODO
 - Decision threshold: TODO
 - Artifact completion criteria: TODO
 - Human intervention policy: TODO
+- Human oversight mode: none / embedded checkpoint / external artifact-log review / LLM-assisted external review
 
 ## Final State
 
@@ -55,6 +56,8 @@ TODO
 | Final artifact filename(s) | TODO |
 | Final artifact accepted? | TODO |
 | Run completed without human intervention? | TODO |
+| Post-run human review completed? | TODO |
+| LLM-assisted review used? | TODO |
 
 ## Quantitative Summary
 
@@ -71,6 +74,7 @@ TODO
 | Proposal self-vote attempts | TODO |
 | Artifact self-review attempts | TODO |
 | Human interventions | TODO |
+| Post-run human reviewers | TODO |
 | Wall-clock time | TODO |
 | Token cost | TODO |
 | Estimated monetary cost | TODO |
@@ -86,6 +90,14 @@ TODO
 | Time | Intervention | Reason | Effect |
 |---|---|---|---|
 | TODO | TODO | TODO | TODO |
+
+## External Human Review
+
+Use this section when the run itself is not interrupted by a human, but generated artifacts and logs are reviewed after completion. This can include ordinary human review or review augmented by separate LLM tools. Record the review method separately from agent-runtime behavior.
+
+| Reviewer ID | Reviewed material | Method | LLM assistance used? | Outcome | Notes |
+|---|---|---|---|---|---|
+| TODO | TODO | TODO | TODO | TODO | TODO |
 
 ## Failure Modes
 

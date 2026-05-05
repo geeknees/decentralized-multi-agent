@@ -65,9 +65,9 @@ The planned comparison set is:
 - single-agent baseline;
 - central manager-agent baseline;
 - decentralized blackboard version;
-- human-in-the-loop version.
+- human-in-the-loop version or post-run human review condition.
 
-Metrics include task completion rate, time to decision, messages until decision, proposal count, approve/reject ratio, artifact acceptance rate, human intervention points, token cost, wall-clock time, reproducibility, and human-rated artifact quality. See [`paper/evaluation-plan.md`](paper/evaluation-plan.md).
+Metrics include task completion rate, time to decision, messages until decision, proposal count, approve/reject ratio, artifact acceptance rate, human intervention points, token cost, wall-clock time, reproducibility, and human-rated artifact quality. Human-in-the-loop is not implemented as a core result in this release. A more composable approach may be to keep the agent system focused on producing artifacts and logs, then have humans review those outputs externally, optionally with LLM-assisted review tools. See [`paper/evaluation-plan.md`](paper/evaluation-plan.md).
 
 ## Citation
 
@@ -80,6 +80,7 @@ Citation metadata is provided in [`CITATION.cff`](CITATION.cff). Until a DOI is 
 - Output quality is not automatically or independently evaluated.
 - Several governance rules are prompt-level and may be ignored by a model.
 - Deadlock handling, role occupancy, richer quorum rules, and richer reviewer eligibility rules are future work.
+- Human-in-the-loop design is treated as future evaluation work, not as a claimed contribution of the current prototype.
 
 ## Roadmap
 

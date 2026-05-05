@@ -53,9 +53,14 @@ Purpose: measure whether blackboard-mediated governance supports completion and 
 
 ### Human-in-the-Loop Version
 
-The decentralized version with explicit human approval or intervention checkpoints.
+There are at least two different ways to define this condition:
 
-Purpose: measure whether minimal human oversight reduces stalls, false acceptance, or unsafe actions.
+- **Embedded human checkpoints:** the software pauses at selected decision or artifact-review points and requires explicit human approval before continuing.
+- **External human review:** the agent system produces artifacts, database logs, and exported Markdown records, then humans review those outputs outside the core runtime. The review can be supported by separate LLM-based tools, such as rubric assistants, source-checking assistants, or comparison summaries.
+
+Purpose: measure whether human oversight reduces stalls, false acceptance, unsafe actions, or low-quality artifacts.
+
+For this technical-report release, Human-in-the-Loop is a proposed evaluation condition rather than an implemented result. The external-review approach may be more composable than embedding human approval inside a single software runtime: it keeps the prototype focused on reproducible artifact and log generation, allows independent review workflows to be swapped in, and makes the method easier to apply across education, political-science, software-engineering, and organization-theory studies.
 
 ## Experiment Matrix
 
@@ -67,6 +72,7 @@ Purpose: measure whether minimal human oversight reduces stalls, false acceptanc
 | Artifact self-review prevention | enabled, disabled in ablation branch |
 | Mission complexity | simple summary, structured comparison, code-change task, source-grounded research task |
 | Artifact review | disabled, peer review only, peer plus human review |
+| Human oversight mode | none, embedded checkpoint, external artifact/log review, LLM-assisted external review |
 | Model/provider | TODO: record exact provider and model |
 | Provider adapter | claude, codex, ollama, openai-compatible, custom command |
 | Loop interval | 5s, 10s, 30s |
