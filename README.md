@@ -28,7 +28,7 @@ The project can also be read as an early case of using LLM agents to make organi
 - Explicit decision phases and artifact definitions as minimal organizational scaffolding.
 - LLM-agent prototypes as a way to operationalize selected organization-theory questions.
 - Minimal governance rules that can be enforced by database constraints and triggers.
-- Failure modes such as proposal churn, role duplication, invalid self-vote attempts, and stalled convergence.
+- Failure modes such as proposal churn, role duplication, invalid self-vote behavior, and stalled convergence.
 
 For the detailed working-paper draft, see [`paper/technical-report.md`](paper/technical-report.md).
 

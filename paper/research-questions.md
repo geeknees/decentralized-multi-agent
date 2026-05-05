@@ -72,8 +72,8 @@ Decentralized coordination removes the central scheduler. Something else has to 
 - stalled runs;
 - repeated or overlapping proposals;
 - inconsistent role coverage;
-- invalid self-vote attempts;
-- invalid artifact self-review attempts;
+- persisted invalid self-vote rows, plus rejected attempts if audit logs exist;
+- persisted invalid artifact self-review rows, plus rejected attempts if audit logs exist;
 - invalid JSON or empty action rate;
 - rejected artifacts and revision count;
 - hallucinated or unverifiable factual claims;
@@ -85,7 +85,7 @@ Run missions with different levels of ambiguity and complexity. Label failures f
 
 ### What Can Be Said Now
 
-The sample run and implementation review point to likely failures: proposal churn, role duplication, invalid self-vote attempts, invalid artifact self-review attempts, long discussions, and prompt-level rule drift.
+The sample run and implementation review point to likely failures: proposal churn, role duplication, invalid self-vote behavior, invalid artifact self-review behavior, long discussions, and prompt-level rule drift. The current sample can show that invalid rows did not persist, but it cannot count rejected attempts without audit logs.
 
 ### What Cannot Be Said Yet
 

@@ -7,7 +7,7 @@
 | Experiment ID | 2026-05-05-v0.1.0-sample |
 | Date | 2026-05-05 JST |
 | Researcher/operator | Masumi Kawasaki |
-| Git commit hash | 05e60c6f5fe3aac2c105ebd8d019fe3d9445c8b3 plus local release-prep changes |
+| Git commit hash | 05e60c6f5fe3aac2c105ebd8d019fe3d9445c8b3 plus local release-prep changes at run time; rerun or update this field before the final release tag if exact tag-level reproducibility is required |
 | Repository URL | https://github.com/geeknees/decentralized-multi-agent |
 | Version/tag | v0.1.0 candidate |
 | Machine/OS | macOS Darwin 25.4.0 arm64 |
@@ -64,9 +64,10 @@ See `purpose_doc.md` in this directory.
 | Number of rejections | 2 proposal rejections |
 | Artifact review approvals | 2 |
 | Artifact review rejections | 0 |
-| Duplicate vote attempts | 0 observed |
-| Proposal self-vote attempts | 0 persisted; DB query found 0 self-vote rows |
-| Artifact self-review attempts | 0 persisted; DB query found 0 self-review rows |
+| Persisted duplicate vote rows | 0 |
+| Persisted proposal self-vote rows | 0 |
+| Persisted artifact self-review rows | 0 |
+| Rejected governance attempts | Not captured; the current runtime does not persist rejected INSERT attempts |
 | Human interventions | 0 during run |
 | Wall-clock time | approximately 8 minutes 22 seconds from first to last message |
 | Token cost | Not captured |
@@ -109,7 +110,7 @@ See `purpose_doc.md` in this directory.
 ```text
 Proposal churn: 5 proposals were created for a small artifact. Proposals #1, #2, and #5 reached DECIDED; #3 and #4 remained OPEN.
 Role duplication: final agent roles were agent-alpha=Researcher, agent-beta=Proposer, agent-gamma=Researcher.
-No persisted proposal self-vote rows, artifact self-review rows, or duplicate proposal votes were found in SQLite.
+No persisted proposal self-vote rows, artifact self-review rows, or duplicate proposal votes were found in SQLite. Rejected INSERT attempts were not captured because this run did not use a governance-violation audit table or external process log.
 ```
 
 ## Notes

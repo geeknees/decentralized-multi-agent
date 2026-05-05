@@ -19,9 +19,10 @@ This plan describes how to evaluate the decentralized blackboard prototype witho
 | Messages until decision | Number of messages before first `DECIDED` proposal | `messages`, `proposals` |
 | Number of proposals | Total proposals created per run | `proposals` |
 | Approve/reject ratio | `APPROVE` votes divided by total votes | `reviews`, `artifact_reviews` |
-| Duplicate vote prevention | Whether duplicate votes are rejected and logged as expected | tests, run errors |
-| Proposal self-vote prevention | Whether proposer votes are rejected and logged as expected | tests, run errors |
-| Artifact self-review prevention | Whether artifact author reviews are rejected and logged as expected | tests, run errors |
+| Duplicate vote prevention | Whether duplicate votes are rejected and no duplicate rows persist | tests, run errors, SQLite queries |
+| Proposal self-vote prevention | Whether proposer votes are rejected and no self-vote rows persist | tests, run errors, SQLite queries |
+| Artifact self-review prevention | Whether artifact author reviews are rejected and no self-review rows persist | tests, run errors, SQLite queries |
+| Rejected governance attempts | Number of rejected duplicate votes, proposal self-votes, or artifact self-reviews, if explicit audit logging is enabled | future audit table or external process logs |
 | Artifact acceptance rate | Fraction of generated artifacts accepted by review | `artifact_reviews`, human rubric |
 | Human intervention points | Count and type of manual interventions | experiment log |
 | Failure cases | Labeled failure modes per run | experiment log and post-run analysis |

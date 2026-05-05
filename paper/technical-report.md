@@ -139,16 +139,18 @@ The tests use real SQLite and real shell/Ruby execution. They do not add a produ
 
 ## 7. Example Mission
 
-The included mission in `purpose_doc.md` asks agents to compare React, Vue, and Svelte and produce a framework recommendation document. The untracked sample artifact `framework_comparison.md` and generated logs show agents selecting roles such as Researcher, Implementer, and Critic. They created several proposals, approved and rejected competing structures, and produced a Markdown comparison artifact.
+The included mission in `purpose_doc.md` asks agents to write a short technical note about one design decision in this repository: using SQLite triggers to enforce peer-review governance rules. The curated sample run is archived under `experiments/2026-05-05-v0.1.0-sample/`. It produced `sample_decision_report.md`, plus exported conversation, peer-review logs, and a SQL dump of the run database.
 
-The generated peer-review log records a few useful events:
+The generated peer-review log records a few useful events from the current schema:
 
-- early proposals were approved after two `APPROVE` votes;
-- at least one proposal was rejected with concrete alternative structure suggestions;
-- later proposals refined the comparison axes and versioning requirements;
-- the conversation reached a high message count before final artifact creation.
+- five proposals were created for a small artifact, showing proposal churn;
+- three proposals reached `DECIDED` after two `APPROVE` votes;
+- two proposals remained `OPEN`;
+- the final artifact entered `review` state after `write_artifact`;
+- two non-author agents approved the artifact, which moved the mission to `completed`;
+- no persisted duplicate proposal votes, proposal self-votes, or artifact self-reviews were found in the archived SQLite dump.
 
-The checked-in source has since added `mission_state` and `artifact_reviews`. The local sample database inspected for this report appeared to predate that change, so the sample run should not be used as evidence for artifact review. The current implementation and tests support artifact review, but empirical analysis needs a fresh run or a curated sample log.
+This is still only a single run. It should be treated as an inspectable example of the implementation, not as evidence that the protocol improves output quality or reliability.
 
 ## 8. Evaluation Plan
 
@@ -159,7 +161,7 @@ The next stage should use controlled runs, fixed prompts, recorded model/provide
 - the decentralized blackboard version;
 - a human-in-the-loop version or post-run human review condition.
 
-Primary metrics should include task completion rate, time to decision, messages until decision, proposal count, approve/reject ratio, duplicate vote prevention, artifact acceptance rate, human intervention points, token cost, wall-clock time, reproducibility across repeated runs, and human-rated artifact quality.
+Primary metrics should include task completion rate, time to decision, messages until decision, proposal count, approve/reject ratio, duplicate vote prevention, persisted invalid rows, artifact acceptance rate, human intervention points, token cost, wall-clock time, reproducibility across repeated runs, and human-rated artifact quality.
 
 Human-in-the-Loop needs a careful definition. One option is embedded human control: the runtime pauses for approval at selected proposal or artifact-review points. Another option is external human review: the agents produce artifacts and auditable logs, and humans inspect those outputs outside the core software. The second approach may compose better. Review procedures can be swapped, domain experts can use their own tools, and LLM-assisted review can be added without turning the agent runtime into a review platform. In this report, Human-in-the-Loop is an evaluation direction, not a demonstrated contribution.
 
@@ -187,7 +189,7 @@ The prototype supports a few cautious observations:
 - The `prevent_self_vote` trigger rejects proposal votes by the proposing agent.
 - The `prevent_artifact_self_review` trigger rejects reviews by the current artifact author.
 - The sample mission shows that a critic-style agent can produce substantive objections and alternatives, including proposal rejection with replacement structure.
-- The sample mission also shows risks of over-discussion and repeated proposal churn. Older sample logs may include self-vote attempts from before the current triggers were added.
+- The sample mission also shows risks of over-discussion and repeated proposal churn. The archived SQLite dump has no persisted self-vote, self-review, or duplicate-vote rows.
 
 These observations are preliminary. They do not show that the architecture improves output quality, reduces hallucination, or outperforms manager-worker systems. The sample mission is not a controlled experiment, and the generated artifact contains claims that need independent source checks before it can be used as research evidence.
 
@@ -196,8 +198,8 @@ These observations are preliminary. They do not show that the architecture impro
 Observed or plausible failure modes include:
 
 - **Proposal churn:** agents may continue creating overlapping proposals instead of converging.
-- **Invalid self-vote attempts:** agents may still attempt proposal self-votes, but the current schema rejects them.
-- **Invalid artifact self-review attempts:** agents may still attempt to review their own artifact, but the current schema records artifact authorship and rejects those review rows.
+- **Invalid self-vote behavior:** agents may still try proposal self-votes, but the current schema rejects those inserts. Counting rejected attempts requires audit logging or external process logs.
+- **Invalid artifact self-review behavior:** agents may still try to review their own artifact, but the current schema records artifact authorship and rejects those review rows. Counting rejected attempts requires audit logging or external process logs.
 - **Role duplication:** several agents may select the same role, leaving other needed roles uncovered.
 - **Prompt-level rule drift:** instructions such as "REJECT must include an alternative" are not fully enforced by schema constraints.
 - **Stale or unverifiable factual claims:** agents can cite data without verifiable provenance.

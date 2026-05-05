@@ -70,9 +70,10 @@ TODO
 | Number of rejections | TODO |
 | Artifact review approvals | TODO |
 | Artifact review rejections | TODO |
-| Duplicate vote attempts | TODO |
-| Proposal self-vote attempts | TODO |
-| Artifact self-review attempts | TODO |
+| Persisted duplicate vote rows | TODO |
+| Persisted proposal self-vote rows | TODO |
+| Persisted artifact self-review rows | TODO |
+| Rejected governance attempts, if audit logging exists | TODO |
 | Human interventions | TODO |
 | Post-run human reviewers | TODO |
 | Wall-clock time | TODO |
