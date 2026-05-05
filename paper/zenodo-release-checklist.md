@@ -4,44 +4,44 @@ Use this checklist before creating a GitHub release connected to Zenodo.
 
 ## Repository State
 
-- [ ] Working tree reviewed for unrelated files and local runtime artifacts.
+- [x] Working tree reviewed for unrelated files and local runtime artifacts.
 - [ ] Version tag selected, e.g. `v0.1.0`.
-- [ ] `CHANGELOG.md` updated for the selected version.
-- [ ] `README.md` includes research motivation, architecture, reproducibility, limitations, and citation guidance.
+- [x] `CHANGELOG.md` updated for the selected version.
+- [x] `README.md` includes research motivation, architecture, reproducibility, limitations, and citation guidance.
 - [ ] `LICENSE` checked and compatible with intended release.
-- [ ] `CITATION.cff` validates and matches the release version.
+- [x] `CITATION.cff` validates and matches the release version.
 - [ ] `.zenodo.json` metadata checked.
 
 ## Tests and Reproducibility
 
-- [ ] Tests pass on the release commit.
-- [ ] Proposal self-vote prevention verified.
-- [ ] Artifact self-review prevention verified.
-- [ ] Test output is clean enough to archive or quote.
-- [ ] Sample mission included or referenced.
-- [ ] Fresh sample run created with the current schema.
-- [ ] Sample run includes exported conversation and peer-review logs.
-- [ ] Experiment log completed from `paper/experiment-log-template.md`.
-- [ ] Git commit hash recorded in the sample run metadata.
-- [ ] Model/provider and date recorded.
+- [x] Tests pass on the release commit.
+- [x] Proposal self-vote prevention verified.
+- [x] Artifact self-review prevention verified.
+- [x] Test output is clean enough to archive or quote.
+- [x] Sample mission included or referenced.
+- [x] Fresh sample run created with the current schema.
+- [x] Sample run includes exported conversation and peer-review logs.
+- [x] Experiment log completed from `paper/experiment-log-template.md`.
+- [x] Git commit hash recorded in the sample run metadata.
+- [x] Model/provider and date recorded.
 
 ## Research Package
 
-- [ ] `paper/technical-report.md` included.
-- [ ] `paper/research-questions.md` included.
-- [ ] `paper/evaluation-plan.md` included.
-- [ ] `paper/experiment-log-template.md` included.
-- [ ] `paper/figures.md` included.
-- [ ] `paper/related-work-notes.md` included.
-- [ ] Limitations reviewed for accuracy and restraint.
-- [ ] Claims checked against implementation and sample logs.
-- [ ] Unverified citations marked as TODO or "to verify".
+- [x] `paper/technical-report.md` included.
+- [x] `paper/research-questions.md` included.
+- [x] `paper/evaluation-plan.md` included.
+- [x] `paper/experiment-log-template.md` included.
+- [x] `paper/figures.md` included.
+- [x] `paper/related-work-notes.md` included.
+- [x] Limitations reviewed for accuracy and restraint.
+- [x] Claims checked against implementation and sample logs.
+- [x] Unverified citations marked as TODO or "to verify".
 
 ## Archive Contents
 
-- [ ] Runtime databases excluded unless intentionally archived as sample data.
-- [ ] Generated logs excluded unless intentionally curated as sample data.
-- [ ] API keys, credentials, personal notes, and local `.DS_Store` files excluded.
+- [x] Runtime databases excluded unless intentionally archived as sample data.
+- [x] Generated logs excluded unless intentionally curated as sample data.
+- [x] API keys, credentials, personal notes, and local `.DS_Store` files excluded.
 - [ ] Archive contents reviewed before release.
 
 ## GitHub and Zenodo
@@ -50,8 +50,8 @@ Use this checklist before creating a GitHub release connected to Zenodo.
 - [ ] Zenodo DOI reserved or minted.
 - [ ] Zenodo metadata reviewed before publishing.
 - [ ] DOI linked back from `README.md`.
-- [ ] GitHub repository URL linked from Zenodo.
-- [ ] Release notes state that this is a working-paper / technical-report release, not a peer-reviewed paper.
+- [x] GitHub repository URL linked from Zenodo.
+- [x] Release notes state that this is a working-paper / technical-report release, not a peer-reviewed paper.
 
 ## Human Review Before Publishing
 
