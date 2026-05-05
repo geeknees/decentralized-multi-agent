@@ -19,6 +19,8 @@ Copy this template once per run. Store completed logs under a versioned director
 | Field | Value |
 |---|---|
 | Model/provider | TODO |
+| Provider adapter | TODO |
+| Endpoint, if local/API provider | TODO |
 | Model version or release date | TODO |
 | Temperature / sampling settings | TODO |
 | Number of agents | TODO |

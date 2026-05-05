@@ -66,6 +66,7 @@ Purpose: measure whether minimal human oversight reduces stalls, false acceptanc
 | Mission complexity | simple summary, structured comparison, code-change task, source-grounded research task |
 | Artifact review | disabled, peer review only, peer plus human review |
 | Model/provider | TODO: record exact provider and model |
+| Provider adapter | claude, codex, ollama, openai-compatible, custom command |
 | Loop interval | 5s, 10s, 30s |
 
 ## Data Collection

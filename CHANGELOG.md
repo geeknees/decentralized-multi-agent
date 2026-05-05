@@ -6,6 +6,8 @@ All notable changes to this research prototype will be documented in this file.
 
 ### Added
 
+- LLM provider adapter supporting Claude, Codex, Ollama, custom commands, and OpenAI-compatible APIs.
+- Tests for the LLM provider adapter.
 - SQLite trigger to reject proposal self-votes by the proposing agent.
 - SQLite trigger to reject artifact self-reviews by the artifact author.
 - Tests covering proposal self-vote and artifact self-review rejection.

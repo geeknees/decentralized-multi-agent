@@ -14,7 +14,7 @@ flowchart TB
 
     P[purpose_doc.md<br/>mission, roles, phases, artifacts]
     C[agents/CLAUDE.md<br/>agent instructions]
-    LLM[claude --print]
+    LLM[scripts/llm_call.sh<br/>configured LLM provider]
     DB[(SQLite blackboard<br/>db/collective.db)]
     D1[whole_conversation_doc.md]
     D2[peer_review_doc.md]
@@ -47,7 +47,7 @@ flowchart TD
     Check{mission_state.status == completed?}
     Read[Read unread messages, open proposals,<br/>mission state, artifact reviews]
     Prompt[Build prompt from purpose_doc.md<br/>and blackboard state]
-    Call[Call claude --print]
+    Call[Call configured LLM provider]
     Parse[Extract JSON actions]
     Apply[Run actions and write DB/artifact]
     Export[Export Markdown logs]

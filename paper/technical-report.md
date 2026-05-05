@@ -2,7 +2,7 @@
 
 ## Abstract
 
-This technical report describes a research prototype for decentralized coordination among large language model agents. The system runs multiple agent processes as independent `tmux` sessions. Each agent repeatedly reads a shared SQLite database, receives the mission specification and current blackboard state, calls an LLM through `claude --print`, and writes structured JSON actions back to the database. Instead of using a central manager agent to assign tasks and approve work, the prototype uses a lightweight proposal-and-review protocol: agents create proposals, cast `APPROVE` or `REJECT` votes, and SQLite triggers mark a proposal as decided when two approvals are recorded. A separate artifact-review path moves a mission from running to review and then to completed when two artifact approvals are recorded.
+This technical report describes a research prototype for decentralized coordination among large language model agents. The system runs multiple agent processes as independent `tmux` sessions. Each agent repeatedly reads a shared SQLite database, receives the mission specification and current blackboard state, calls a configurable LLM provider adapter, and writes structured JSON actions back to the database. Instead of using a central manager agent to assign tasks and approve work, the prototype uses a lightweight proposal-and-review protocol: agents create proposals, cast `APPROVE` or `REJECT` votes, and SQLite triggers mark a proposal as decided when two approvals are recorded. A separate artifact-review path moves a mission from running to review and then to completed when two artifact approvals are recorded.
 
 The prototype explores whether a small set of database-backed governance rules can support task progress, dissent, revision, and final artifact acceptance among peer LLM agents. It is best understood as a blackboard-style architecture adapted for LLM agents rather than as a proven general-purpose multi-agent framework. Current evidence is limited to implementation tests and a small sample mission. The report therefore separates implemented mechanisms, preliminary observations, failure modes, limitations, and an evaluation plan for future controlled experiments against single-agent and centrally orchestrated baselines.
 
@@ -37,7 +37,7 @@ This framing is related to blackboard systems, peer review, and lightweight gove
 
 ## 3. System Overview
 
-The runtime consists of N agent processes. Each process runs the same loop in `agents/agent.sh` and is distinguished by an `AGENT_NAME`. The loop reads the mission from `purpose_doc.md`, reads unread messages and open proposals from SQLite, sends a structured prompt to `claude --print`, extracts JSON actions, and applies those actions to the database or filesystem.
+The runtime consists of N agent processes. Each process runs the same loop in `agents/agent.sh` and is distinguished by an `AGENT_NAME`. The loop reads the mission from `purpose_doc.md`, reads unread messages and open proposals from SQLite, sends a structured prompt to `scripts/llm_call.sh`, extracts JSON actions, and applies those actions to the database or filesystem. The adapter supports Claude, Codex, Ollama, custom stdin/stdout commands, and OpenAI-compatible chat-completions endpoints.
 
 The implemented action types are:
 
@@ -108,6 +108,7 @@ The repository is a compact shell/Ruby prototype:
 
 - `scripts/init_db.sh` creates the SQLite schema and triggers.
 - `scripts/db_write.sh` is the write interface for messages, proposals, votes, and artifact reviews.
+- `scripts/llm_call.sh` dispatches prompts to the configured LLM provider.
 - `scripts/run_actions.rb` executes JSON actions returned by an LLM.
 - `scripts/extract_json.rb` extracts the first JSON object from an LLM response.
 - `agents/agent.sh` implements the agent loop.
@@ -123,11 +124,12 @@ The current test suite covers:
 - duplicate proposal vote rejection;
 - proposal self-vote rejection;
 - artifact self-review rejection;
+- LLM provider adapter dispatch;
 - Markdown export formatting for pipes and multiline content;
-- agent startup with a test `claude` executable placed on `PATH`;
+- agent startup with a test provider executable placed on `PATH`;
 - artifact write/review/completion behavior.
 
-The tests use real SQLite and real shell/Ruby execution. They do not add a production mock mode to the application itself. Some tests replace the external `claude` executable through `PATH` to avoid live model calls while preserving the agent loop's external-process boundary.
+The tests use real SQLite and real shell/Ruby execution. They do not add a production mock mode to the application itself. Some tests replace external provider executables through `PATH` to avoid live model calls while preserving the agent loop's external-process boundary.
 
 ## 7. Example Mission
 
@@ -201,7 +203,7 @@ Observed or plausible failure modes include:
 
 This prototype has several important limitations.
 
-First, the current implementation is a local research prototype, not production infrastructure. It relies on shell scripts, a local SQLite file, `tmux`, and a locally available Claude Code CLI. It has no distributed deployment layer, authentication model, tenant isolation, or robust observability stack.
+First, the current implementation is a local research prototype, not production infrastructure. It relies on shell scripts, a local SQLite file, `tmux`, and a locally available LLM backend such as Claude Code CLI, Codex CLI, Ollama, or an OpenAI-compatible endpoint. It has no distributed deployment layer, authentication model, tenant isolation, or robust observability stack.
 
 Second, the governance protocol is intentionally minimal. It demonstrates proposal review, proposal self-vote prevention, artifact review, and artifact self-review prevention, but does not yet implement richer mechanisms such as quorum based on active agents, abstentions, reviewer eligibility beyond proposal and artifact authorship, timeouts, explicit proposal closure, or role occupancy constraints.
 

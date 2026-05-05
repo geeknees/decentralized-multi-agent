@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# ABOUTME: Main agent loop — reads SQLite blackboard, calls Claude, writes responses
+# ABOUTME: Main agent loop — reads SQLite blackboard, calls an LLM, writes responses
 # ABOUTME: Runs indefinitely (or LOOP_MAX iterations in test mode) with LOOP_INTERVAL sleep
 
 set -euo pipefail
@@ -104,7 +104,7 @@ ${ARTIFACT_REVIEWS_TEXT:-（なし）}
 
 agents/CLAUDE.md の指示に従い、JSONでアクションを返してください。"
 
-  RESPONSE=$(echo "$PROMPT" | claude --print 2>/dev/null || echo '{"actions":[]}')
+  RESPONSE=$(printf '%s' "$PROMPT" | "$PROJECT_ROOT/scripts/llm_call.sh" 2>/dev/null || echo '{"actions":[]}')
 
   JSON=$(echo "$RESPONSE" | ruby_cmd "$PROJECT_ROOT/scripts/extract_json.rb" 2>/dev/null \
         || echo '{"actions":[]}')

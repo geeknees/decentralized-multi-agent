@@ -4,7 +4,7 @@
 
 ## English
 
-A decentralized autonomous system where multiple AI agents share a SQLite blackboard and make decisions through peer review. Agents run as tmux panes and call `claude --print` to return actions in JSON format.
+A decentralized autonomous system where multiple AI agents share a SQLite blackboard and make decisions through peer review. Agents run as tmux panes and call a configurable LLM provider to return actions in JSON format.
 
 This repository is also prepared as a research prototype for a Zenodo DOI release. It is a technical-report / working-paper artifact, not a peer-reviewed paper. The implementation is the live development space; the `paper/` directory contains the fixed research framing, evaluation plan, and release notes.
 
@@ -105,8 +105,8 @@ Each agent runs an independent loop:
 
 1. Read unread messages and undecided proposals from the SQLite blackboard.
 2. Exit if `mission_state.status = completed`.
-3. Pass the mission from `purpose_doc.md` and the current state to `claude --print`.
-4. Parse the JSON action returned by Claude and write it to the database.
+3. Pass the mission from `purpose_doc.md` and the current state to `scripts/llm_call.sh`.
+4. Parse the JSON action returned by the configured LLM provider and write it to the database.
 5. Export Markdown documents and sleep (10 seconds by default).
 
 ## Decision Rules
@@ -127,8 +127,9 @@ Each agent runs an independent loop:
 | `agents/agent.sh` | Main agent loop |
 | `scripts/init_db.sh` | Initialize the SQLite schema (tables and triggers) |
 | `scripts/db_write.sh` | Database write CLI for agents |
+| `scripts/llm_call.sh` | Provider adapter for Claude, Codex, Ollama, custom commands, and OpenAI-compatible APIs |
 | `scripts/export_docs.sh` | Export SQLite data to Markdown |
-| `scripts/extract_json.rb` | Extract JSON from Claude responses |
+| `scripts/extract_json.rb` | Extract JSON from LLM responses |
 | `scripts/run_actions.rb` | Execute action JSON |
 | `scripts/launch.sh` | Launch multiple agents in a tmux session |
 | `scripts/reset_purpose.sh` | Archive the conversation state and replace the mission |
@@ -142,7 +143,9 @@ Each agent runs an independent loop:
 sqlite3 --version   # SQLite 3.x
 tmux -V             # tmux 3.x
 ruby --version      # Ruby (mise recommended)
-claude --version    # Claude Code CLI
+claude --version    # Claude Code CLI, if using LLM_PROVIDER=claude
+codex --version     # Codex CLI, if using LLM_PROVIDER=codex
+ollama --version    # Ollama, if using LLM_PROVIDER=ollama
 
 # Install on macOS
 brew install sqlite tmux
@@ -269,7 +272,7 @@ Each agent returns JSON like this:
 
 ```bash
 bash tests/run_tests.sh
-# Results: 57 passed, 0 failed
+# Results: 66 passed, 0 failed
 ```
 
 ## Environment Variables
@@ -280,10 +283,38 @@ bash tests/run_tests.sh
 | `LOOP_INTERVAL` | `10` | Loop interval in seconds |
 | `LOOP_MAX` | `0` (infinite) | For tests: stop after the specified number of loops |
 | `EXPORT_DIR` | Project root | Markdown export destination |
+| `LLM_PROVIDER` | `claude` | Provider used by `scripts/llm_call.sh`: `claude`, `codex`, `ollama`, or `openai-compatible` |
+| `LLM_MODEL` | empty | Model name for providers that require one |
+| `LLM_ENDPOINT` | empty | Chat completions endpoint for OpenAI-compatible providers |
+| `LLM_API_KEY` | empty | Optional bearer token for OpenAI-compatible providers |
+| `LLM_TEMPERATURE` | `0.2` | Temperature used by OpenAI-compatible providers |
+| `LLM_CMD` | empty | Custom stdin-to-stdout command. When set, it overrides `LLM_PROVIDER` |
+
+### LLM provider examples
+
+```bash
+# Default Claude Code CLI backend
+LLM_PROVIDER=claude scripts/launch.sh agent-alpha agent-beta agent-gamma
+
+# Codex CLI backend. The adapter runs codex exec with read-only sandboxing.
+LLM_PROVIDER=codex LLM_MODEL=gpt-5.2 scripts/launch.sh agent-alpha agent-beta agent-gamma
+
+# Ollama CLI backend
+LLM_PROVIDER=ollama LLM_MODEL=qwen2.5-coder:14b scripts/launch.sh agent-alpha agent-beta agent-gamma
+
+# OpenAI-compatible local endpoint, such as Ollama or LM Studio
+LLM_PROVIDER=openai-compatible \
+LLM_ENDPOINT=http://localhost:11434/v1/chat/completions \
+LLM_MODEL=qwen2.5-coder:14b \
+scripts/launch.sh agent-alpha agent-beta agent-gamma
+
+# Any custom command that reads stdin and writes a model response to stdout
+LLM_CMD='my-llm-command --json' scripts/launch.sh agent-alpha agent-beta agent-gamma
+```
 
 ## 日本語
 
-N個のAIエージェントがSQLiteブラックボードを共有し、ピアレビューで意思決定する自律分散システム。エージェントはtmuxペインとして動作し、`claude --print` を呼び出してJSON形式のアクションを返す。
+N個のAIエージェントがSQLiteブラックボードを共有し、ピアレビューで意思決定する自律分散システム。エージェントはtmuxペインとして動作し、設定されたLLM providerを呼び出してJSON形式のアクションを返す。
 
 ## アーキテクチャ
 
@@ -306,8 +337,8 @@ N個のAIエージェントがSQLiteブラックボードを共有し、ピア�
 
 1. SQLiteブラックボードから未読メッセージ・未決プロポーザルを読む
 2. `mission_state.status = completed` なら終了する
-3. `purpose_doc.md` のミッションと現在の状態を `claude --print` に渡す
-4. Claude が返したJSONアクションを解析し、DBに書き込む
+3. `purpose_doc.md` のミッションと現在の状態を `scripts/llm_call.sh` に渡す
+4. 設定されたLLM providerが返したJSONアクションを解析し、DBに書き込む
 5. Markdownドキュメントをエクスポートして睡眠（デフォルト10秒）
 
 ## 意思決定ルール
@@ -328,8 +359,9 @@ N個のAIエージェントがSQLiteブラックボードを共有し、ピア�
 | `agents/agent.sh` | メインエージェントループ |
 | `scripts/init_db.sh` | SQLiteスキーマ初期化（テーブル＋トリガー） |
 | `scripts/db_write.sh` | エージェント用DB書き込みCLI |
+| `scripts/llm_call.sh` | Claude、Codex、Ollama、custom command、OpenAI互換API用provider adapter |
 | `scripts/export_docs.sh` | SQLite → Markdown エクスポート |
-| `scripts/extract_json.rb` | Claude応答からJSONを抽出 |
+| `scripts/extract_json.rb` | LLM応答からJSONを抽出 |
 | `scripts/run_actions.rb` | アクションJSONを実行 |
 | `scripts/launch.sh` | tmuxセッションで複数エージェント起動 |
 | `scripts/reset_purpose.sh` | 会話状態をアーカイブしてミッションを差し替える |
@@ -343,7 +375,9 @@ N個のAIエージェントがSQLiteブラックボードを共有し、ピア�
 sqlite3 --version   # SQLite 3.x
 tmux -V             # tmux 3.x
 ruby --version      # Ruby (mise推奨)
-claude --version    # Claude Code CLI
+claude --version    # LLM_PROVIDER=claude の場合
+codex --version     # LLM_PROVIDER=codex の場合
+ollama --version    # LLM_PROVIDER=ollama の場合
 
 # macOSでのインストール
 brew install sqlite tmux
@@ -470,7 +504,7 @@ artifact_reviews (id, filename, reviewer, vote, comment, created_at)
 
 ```bash
 bash tests/run_tests.sh
-# Results: 57 passed, 0 failed
+# Results: 66 passed, 0 failed
 ```
 
 ## 環境変数
@@ -481,3 +515,9 @@ bash tests/run_tests.sh
 | `LOOP_INTERVAL` | `10` | ループ間隔（秒） |
 | `LOOP_MAX` | `0`（無限） | テスト用：指定回数でループ終了 |
 | `EXPORT_DIR` | プロジェクトルート | Markdownエクスポート先 |
+| `LLM_PROVIDER` | `claude` | `scripts/llm_call.sh` が使うprovider: `claude`, `codex`, `ollama`, `openai-compatible` |
+| `LLM_MODEL` | 空 | providerが必要とするmodel名 |
+| `LLM_ENDPOINT` | 空 | OpenAI互換provider用chat completions endpoint |
+| `LLM_API_KEY` | 空 | OpenAI互換provider用の任意bearer token |
+| `LLM_TEMPERATURE` | `0.2` | OpenAI互換provider用temperature |
+| `LLM_CMD` | 空 | stdinを読みstdoutへ応答を書くcustom command。設定時は`LLM_PROVIDER`より優先 |
