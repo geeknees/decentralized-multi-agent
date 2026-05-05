@@ -42,12 +42,13 @@ data['actions'].each do |a|
       system('sqlite3', db_path,
              "DELETE FROM artifact_reviews WHERE filename='#{filename_sql}';
               INSERT INTO mission_state
-                (id, status, artifact_filename, artifact_written_at, completed_at, updated_at)
+                (id, status, artifact_filename, artifact_author, artifact_written_at, completed_at, updated_at)
               VALUES
-                (1, 'review', '#{filename_sql}', CURRENT_TIMESTAMP, NULL, CURRENT_TIMESTAMP)
+                (1, 'review', '#{filename_sql}', '#{sql_escape(agent_name)}', CURRENT_TIMESTAMP, NULL, CURRENT_TIMESTAMP)
               ON CONFLICT(id) DO UPDATE SET
                 status='review',
                 artifact_filename=excluded.artifact_filename,
+                artifact_author=excluded.artifact_author,
                 artifact_written_at=CURRENT_TIMESTAMP,
                 completed_at=NULL,
                 updated_at=CURRENT_TIMESTAMP;")

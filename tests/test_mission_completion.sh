@@ -29,6 +29,15 @@ assert_equals "review" "$result" "write_artifact moves mission to review"
 result=$(sqlite3 "$DB_PATH" "SELECT artifact_filename FROM mission_state WHERE id=1;")
 assert_equals "test_output.md" "$result" "write_artifact records artifact filename"
 
+result=$(sqlite3 "$DB_PATH" "SELECT artifact_author FROM mission_state WHERE id=1;")
+assert_equals "agent-a" "$result" "write_artifact records artifact author"
+
+set +e
+DB_PATH="$DB_PATH" "$SCRIPTS_DIR/db_write.sh" review_artifact agent-a test_output.md APPROVE "Self review" 2>/dev/null
+self_review_exit=$?
+set -e
+assert_equals "1" "$self_review_exit" "artifact author cannot review own artifact"
+
 DB_PATH="$DB_PATH" "$SCRIPTS_DIR/db_write.sh" review_artifact agent-b test_output.md REJECT "Missing required detail"
 result=$(sqlite3 "$DB_PATH" "SELECT status FROM mission_state WHERE id=1;")
 assert_equals "running" "$result" "artifact REJECT returns mission to running"

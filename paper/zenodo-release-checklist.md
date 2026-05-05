@@ -15,6 +15,8 @@ Use this checklist before creating a GitHub release connected to Zenodo.
 ## Tests and Reproducibility
 
 - [ ] Tests pass on the release commit.
+- [ ] Proposal self-vote prevention verified.
+- [ ] Artifact self-review prevention verified.
 - [ ] Test output is clean enough to archive or quote.
 - [ ] Sample mission included or referenced.
 - [ ] Fresh sample run created with the current schema.

@@ -20,7 +20,7 @@ The goal is not to claim that decentralized coordination is generally superior. 
 - Peer proposal and voting instead of manager-only decisions.
 - Artifact review as a separate phase from ordinary discussion.
 - Minimal governance rules that can be enforced by database constraints and triggers.
-- Failure modes such as proposal churn, role duplication, self-approval, and stalled convergence.
+- Failure modes such as proposal churn, role duplication, invalid self-vote attempts, and stalled convergence.
 
 For the detailed working-paper draft, see [`paper/technical-report.md`](paper/technical-report.md).
 
@@ -34,10 +34,11 @@ See [`paper/figures.md`](paper/figures.md) for Mermaid diagrams.
 
 - Proposal decisions: two `APPROVE` votes mark a proposal as `DECIDED`.
 - Duplicate proposal votes by the same reviewer are blocked by a SQLite `UNIQUE` constraint.
+- Proposal self-votes are rejected by the `prevent_self_vote` SQLite trigger.
 - `REJECT` comments are required by agent instructions to include an alternative.
 - Artifact review: `write_artifact` moves the mission into review; two artifact approvals complete the mission; one artifact rejection reopens it.
 
-Some norms are currently prompt-level rather than schema-level. For example, self-approval is not yet prevented by the database.
+Some norms are still prompt-level rather than schema-level. For example, `REJECT` alternatives are required by agent instructions, not by a database constraint.
 
 ## Reproducibility
 
@@ -72,7 +73,7 @@ Citation metadata is provided in [`CITATION.cff`](CITATION.cff). Until a DOI is 
 - Current evidence is limited to implementation tests and sample runs, not controlled experiments.
 - Output quality is not automatically or independently evaluated.
 - Several governance rules are prompt-level and may be ignored by a model.
-- Self-approval, deadlock handling, role occupancy, and richer quorum rules are future work.
+- Deadlock handling, role occupancy, richer quorum rules, and richer reviewer eligibility rules are future work.
 
 ## Roadmap
 
@@ -80,7 +81,7 @@ Citation metadata is provided in [`CITATION.cff`](CITATION.cff). Until a DOI is 
 - Export structured experiment metrics from SQLite.
 - Add token and wall-clock accounting.
 - Compare against single-agent and central manager-agent baselines.
-- Add no-self-approval or explicit self-approval labeling.
+- Add richer reviewer eligibility rules for quorum and conflict-of-interest handling.
 - Prepare a v0.1.0 GitHub release linked to Zenodo.
 
 ## Runtime Architecture
@@ -113,6 +114,8 @@ Each agent runs an independent loop:
 - **2 APPROVE -> DECIDED**: A SQLite trigger updates the status automatically.
 - **REJECT**: Return to discussion. Every rejection comment must include an alternative.
 - **Duplicate votes by the same agent**: Rejected by a UNIQUE constraint.
+- **Proposal self-votes**: Rejected by the `prevent_self_vote` trigger.
+- **Artifact self-reviews**: Rejected by the `prevent_artifact_self_review` trigger.
 - **Artifact review**: After `write_artifact`, `mission_state.status = review`. Two `APPROVE` votes on `review_artifact` mark the mission as `completed`, while one `REJECT` returns it to `running`.
 
 ## File Layout
@@ -231,10 +234,12 @@ agents     (id, name, role, status, last_seen, last_read_id)
 messages   (id, sender, recipient, content, created_at)
 proposals  (id, proposer, title, content, status, created_at)
 reviews    (id, proposal_id, reviewer, vote, comment, created_at)
-mission_state    (id, status, artifact_filename, artifact_written_at, completed_at, updated_at)
+mission_state    (id, status, artifact_filename, artifact_author, artifact_written_at, completed_at, updated_at)
 artifact_reviews (id, filename, reviewer, vote, comment, created_at)
 ```
 
+The `prevent_self_vote` trigger rejects review rows where the proposal proposer and reviewer are the same agent.
+The `prevent_artifact_self_review` trigger rejects artifact review rows where the artifact author and reviewer are the same agent.
 The `auto_decide` trigger updates `proposals.status` to `DECIDED` when two or more `APPROVE` votes exist after an INSERT into `reviews`.
 The `auto_complete_mission` trigger updates `mission_state.status` to `completed` when two or more `APPROVE` votes exist for the same artifact after an INSERT into `artifact_reviews`.
 The `auto_reopen_mission` trigger returns `mission_state.status` to `running` when an artifact review is `REJECT`.
@@ -264,7 +269,7 @@ Each agent returns JSON like this:
 
 ```bash
 bash tests/run_tests.sh
-# Results: 44 passed, 0 failed
+# Results: 57 passed, 0 failed
 ```
 
 ## Environment Variables
@@ -310,6 +315,8 @@ N個のAIエージェントがSQLiteブラックボードを共有し、ピア�
 - **2 APPROVE → DECIDED**: SQLiteトリガーが自動的にステータスを更新
 - **REJECT**: 再議論。コメントには必ず代替案を含める
 - **同一エージェントの二重投票**: UNIQUE制約で拒否
+- **proposalの自己投票**: `prevent_self_vote` トリガーで拒否
+- **成果物の自己レビュー**: `prevent_artifact_self_review` トリガーで拒否
 - **成果物レビュー**: `write_artifact` 後に `mission_state.status = review` となり、`review_artifact` の2 APPROVEで `completed`、1 REJECTで `running` に戻る
 
 ## ファイル構成
@@ -428,10 +435,12 @@ agents     (id, name, role, status, last_seen, last_read_id)
 messages   (id, sender, recipient, content, created_at)
 proposals  (id, proposer, title, content, status, created_at)
 reviews    (id, proposal_id, reviewer, vote, comment, created_at)
-mission_state    (id, status, artifact_filename, artifact_written_at, completed_at, updated_at)
+mission_state    (id, status, artifact_filename, artifact_author, artifact_written_at, completed_at, updated_at)
 artifact_reviews (id, filename, reviewer, vote, comment, created_at)
 ```
 
+`prevent_self_vote` トリガーが、proposalの提案者とreviewerが同一エージェントであるreview行を拒否する。
+`prevent_artifact_self_review` トリガーが、成果物の作成者とreviewerが同一エージェントであるartifact review行を拒否する。
 `auto_decide` トリガーが `reviews` への INSERT後に APPROVE が2件以上あれば `proposals.status` を `DECIDED` に更新する。
 `auto_complete_mission` トリガーが `artifact_reviews` への INSERT後に同じ成果物の APPROVE が2件以上あれば `mission_state.status` を `completed` に更新する。
 `auto_reopen_mission` トリガーが成果物レビューの REJECT で `mission_state.status` を `running` に戻す。
@@ -461,7 +470,7 @@ artifact_reviews (id, filename, reviewer, vote, comment, created_at)
 
 ```bash
 bash tests/run_tests.sh
-# Results: 44 passed, 0 failed
+# Results: 57 passed, 0 failed
 ```
 
 ## 環境変数

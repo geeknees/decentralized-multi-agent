@@ -66,6 +66,8 @@ TODO
 | Artifact review approvals | TODO |
 | Artifact review rejections | TODO |
 | Duplicate vote attempts | TODO |
+| Proposal self-vote attempts | TODO |
+| Artifact self-review attempts | TODO |
 | Human interventions | TODO |
 | Wall-clock time | TODO |
 | Token cost | TODO |
@@ -89,7 +91,8 @@ Check all that apply and add evidence.
 
 - [ ] Proposal churn
 - [ ] Role duplication
-- [ ] Self-approval
+- [ ] Proposal self-vote attempt
+- [ ] Artifact self-review
 - [ ] Duplicate vote attempt
 - [ ] Invalid JSON
 - [ ] Empty or no-op action loop

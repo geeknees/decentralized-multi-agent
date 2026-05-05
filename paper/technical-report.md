@@ -85,9 +85,10 @@ The decision protocol is deliberately small:
 3. A proposal remains `OPEN` until two `APPROVE` votes are recorded.
 4. A SQLite trigger changes the proposal status to `DECIDED`.
 5. A unique constraint prevents the same agent from voting twice on the same proposal.
-6. Agent instructions require each rejection comment to include an alternative.
+6. A SQLite trigger rejects proposal self-votes where the proposer and reviewer are the same agent.
+7. Agent instructions require each rejection comment to include an alternative.
 
-The protocol does not currently enforce every social rule at the database level. For example, the database prevents duplicate proposal votes by the same reviewer, but it does not prevent a proposer from approving their own proposal. The requirement that `REJECT` include an alternative is prompt-level guidance, not a schema-level invariant.
+The protocol does not currently enforce every social rule at the database level. For example, the database prevents duplicate proposal votes and proposal self-votes, but the requirement that `REJECT` include an alternative is prompt-level guidance, not a schema-level invariant.
 
 Artifact review uses a related but separate protocol:
 
@@ -97,6 +98,7 @@ Artifact review uses a related but separate protocol:
 4. Two approvals complete the mission.
 5. One rejection reopens the mission for revision.
 6. A unique constraint prevents the same agent from reviewing the same artifact twice per artifact version.
+7. A SQLite trigger rejects artifact reviews by the agent that wrote the current artifact version.
 
 This separation is important. A proposal decision records agreement about what to do; artifact review records whether the resulting output meets the declared completion criteria.
 
@@ -119,6 +121,8 @@ The current test suite covers:
 - database write helper behavior;
 - proposal decision semantics;
 - duplicate proposal vote rejection;
+- proposal self-vote rejection;
+- artifact self-review rejection;
 - Markdown export formatting for pipes and multiline content;
 - agent startup with a test `claude` executable placed on `PATH`;
 - artifact write/review/completion behavior.
@@ -156,8 +160,9 @@ Experiments should vary:
 - decision threshold;
 - mission complexity;
 - model/provider;
-- whether self-approval is allowed;
+- whether proposal self-vote prevention is enabled;
 - whether artifact review is enabled;
+- whether artifact self-review prevention is enabled;
 - whether a human can intervene.
 
 Each run should be logged with commit hash, model/provider, initial mission, database export, artifact outputs, failure modes, and reproducibility notes. The template in `experiment-log-template.md` provides a starting format.
@@ -169,8 +174,10 @@ The prototype supports several cautious observations:
 - SQLite is sufficient for a minimal shared blackboard with durable message, proposal, and vote records.
 - Database triggers can encode simple governance state transitions without a central manager agent.
 - A `UNIQUE(proposal_id, reviewer)` constraint reliably prevents duplicate proposal votes.
+- The `prevent_self_vote` trigger rejects proposal votes by the proposing agent.
+- The `prevent_artifact_self_review` trigger rejects reviews by the current artifact author.
 - The sample mission shows that a critic-style agent can produce substantive objections and alternatives, including proposal rejection with replacement structure.
-- The sample mission also shows risks of over-discussion, repeated proposal churn, and self-approval.
+- The sample mission also shows risks of over-discussion and repeated proposal churn. Older sample logs may include self-vote attempts from before the current triggers were added.
 
 These observations are preliminary. They do not establish that the architecture improves output quality, reduces hallucination, or outperforms manager-worker systems. The sample mission is not a controlled experiment and the generated artifact contains claims that would need independent source verification before being used as research evidence.
 
@@ -179,7 +186,8 @@ These observations are preliminary. They do not establish that the architecture 
 Observed or plausible failure modes include:
 
 - **Proposal churn:** agents may continue creating overlapping proposals instead of converging.
-- **Self-approval:** an agent can approve its own proposal under the current schema.
+- **Invalid self-vote attempts:** agents may still attempt proposal self-votes, but the current schema rejects them.
+- **Invalid artifact self-review attempts:** agents may still attempt to review their own artifact, but the current schema records artifact authorship and rejects those review rows.
 - **Role duplication:** several agents may select the same role, leaving other needed roles uncovered.
 - **Prompt-level rule drift:** instructions such as "REJECT must include an alternative" are not fully enforced by schema constraints.
 - **Stale or unverifiable factual claims:** agents can cite data without verifiable provenance.
@@ -195,7 +203,7 @@ This prototype has several important limitations.
 
 First, the current implementation is a local research prototype, not production infrastructure. It relies on shell scripts, a local SQLite file, `tmux`, and a locally available Claude Code CLI. It has no distributed deployment layer, authentication model, tenant isolation, or robust observability stack.
 
-Second, the governance protocol is intentionally minimal. It demonstrates proposal review and artifact review, but does not yet implement richer mechanisms such as quorum based on active agents, abstentions, reviewer eligibility, conflict-of-interest checks, timeouts, explicit proposal closure, or role occupancy constraints.
+Second, the governance protocol is intentionally minimal. It demonstrates proposal review, proposal self-vote prevention, artifact review, and artifact self-review prevention, but does not yet implement richer mechanisms such as quorum based on active agents, abstentions, reviewer eligibility beyond proposal and artifact authorship, timeouts, explicit proposal closure, or role occupancy constraints.
 
 Third, agent behavior remains heavily prompt-mediated. The database enforces duplicate vote prevention and approval thresholds, but several important norms are only described in `agents/CLAUDE.md`. A model may ignore or inconsistently apply those norms.
 
@@ -220,7 +228,7 @@ Near-term work should focus on reproducibility and evaluation:
 
 Protocol-level work should include:
 
-- self-approval prevention or explicit self-approval labeling;
+- richer reviewer eligibility rules for quorum and conflict-of-interest handling;
 - quorum rules based on active agents;
 - proposal withdrawal and closure;
 - role occupancy or role negotiation;

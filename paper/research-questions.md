@@ -34,7 +34,7 @@ It is not yet established that blackboard coordination is more reliable, faster,
 
 ### Background
 
-The current protocol requires two approvals before a proposal becomes `DECIDED`. Rejecting agents are instructed to provide alternatives. Duplicate votes by the same agent are blocked with a unique constraint.
+The current protocol requires two approvals before a proposal becomes `DECIDED`. Rejecting agents are instructed to provide alternatives. Duplicate votes by the same agent are blocked with a unique constraint. Proposal self-votes and artifact self-reviews are rejected by SQLite triggers.
 
 ### Indicators to Observe
 
@@ -47,11 +47,11 @@ The current protocol requires two approvals before a proposal becomes `DECIDED`.
 
 ### Experiment Method
 
-Compare runs with no proposal protocol, one-approval protocol, two-approval protocol, and two-approval-plus-no-self-approval protocol. Use tasks where premature convergence can be detected through an external rubric.
+Compare runs with no proposal protocol, one-approval protocol, two-approval protocol, and two-approval with proposal self-vote prevention. Use tasks where premature convergence can be detected through an external rubric.
 
 ### What Can Be Said Now
 
-The implementation prevents duplicate votes and atomically marks a proposal as decided after two approvals. The sample peer-review log includes a rejected proposal with a concrete replacement structure.
+The implementation prevents duplicate votes, proposal self-votes, and artifact self-reviews, and atomically marks a proposal as decided after two approvals. The sample peer-review log includes a rejected proposal with a concrete replacement structure.
 
 ### What Cannot Be Said Yet
 
@@ -68,7 +68,8 @@ Decentralized coordination removes a central scheduler and therefore needs other
 - stalled runs;
 - repeated or overlapping proposals;
 - inconsistent role coverage;
-- self-approval frequency;
+- invalid self-vote attempts;
+- invalid artifact self-review attempts;
 - invalid JSON or empty action rate;
 - rejected artifacts and revision count;
 - hallucinated or unverifiable factual claims;
@@ -80,7 +81,7 @@ Run missions with increasing ambiguity and complexity. Label failures from datab
 
 ### What Can Be Said Now
 
-The sample run and implementation review suggest likely failures: proposal churn, role duplication, self-approval, long discussions, and prompt-level rule drift.
+The sample run and implementation review suggest likely failures: proposal churn, role duplication, invalid self-vote attempts, invalid artifact self-review attempts, long discussions, and prompt-level rule drift.
 
 ### What Cannot Be Said Yet
 
@@ -90,7 +91,7 @@ There is no failure taxonomy backed by repeated runs. Current observations are n
 
 ### Background
 
-The prototype includes minimal governance: mission document, action schema, two-approval decision threshold, duplicate-vote prevention, artifact-review lifecycle, and rejection-based reopening.
+The prototype includes minimal governance: mission document, action schema, two-approval decision threshold, duplicate-vote prevention, proposal self-vote prevention, artifact-review lifecycle, artifact self-review prevention, and rejection-based reopening.
 
 ### Indicators to Observe
 
@@ -104,7 +105,7 @@ The prototype includes minimal governance: mission document, action schema, two-
 
 ### Experiment Method
 
-Ablate governance features one by one: remove duplicate vote prevention, allow one-approval decisions, remove artifact review, remove rejection alternatives, add no-self-approval, and add quorum. Compare completion and quality.
+Ablate governance features one by one: remove duplicate vote prevention, disable proposal self-vote prevention, disable artifact self-review prevention, allow one-approval decisions, remove artifact review, remove rejection alternatives, and add quorum. Compare completion and quality.
 
 ### What Can Be Said Now
 

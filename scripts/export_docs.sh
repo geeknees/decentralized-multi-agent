@@ -61,14 +61,15 @@ escape_table_cell() {
   echo ""
   echo "## Mission Completion"
   echo ""
-  while IFS="$COLUMN_SEPARATOR" read -r -d "$ROW_SEPARATOR" mission_status artifact_filename completed_at; do
+  while IFS="$COLUMN_SEPARATOR" read -r -d "$ROW_SEPARATOR" mission_status artifact_filename artifact_author completed_at; do
     echo "**Status:** $mission_status  "
     echo "**Artifact:** $artifact_filename  "
+    echo "**Artifact author:** $artifact_author  "
     if [ -n "$completed_at" ]; then
       echo "**Completed at:** $completed_at  "
     fi
   done < <(
-    sqlite_stream "SELECT COALESCE(status, ''), COALESCE(artifact_filename, 'none'), COALESCE(completed_at, '') FROM mission_state WHERE id=1;"
+    sqlite_stream "SELECT COALESCE(status, ''), COALESCE(artifact_filename, 'none'), COALESCE(artifact_author, 'none'), COALESCE(completed_at, '') FROM mission_state WHERE id=1;"
   )
   echo ""
   echo "| Artifact | Reviewer | Vote | Comment |"

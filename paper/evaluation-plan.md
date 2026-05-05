@@ -19,6 +19,8 @@ This plan defines how to evaluate the decentralized blackboard prototype without
 | Number of proposals | Total proposals created per run | `proposals` |
 | Approve/reject ratio | `APPROVE` votes divided by total votes | `reviews`, `artifact_reviews` |
 | Duplicate vote prevention | Whether duplicate votes are rejected and logged as expected | tests, run errors |
+| Proposal self-vote prevention | Whether proposer votes are rejected and logged as expected | tests, run errors |
+| Artifact self-review prevention | Whether artifact author reviews are rejected and logged as expected | tests, run errors |
 | Artifact acceptance rate | Fraction of generated artifacts accepted by review | `artifact_reviews`, human rubric |
 | Human intervention points | Count and type of manual interventions | experiment log |
 | Failure cases | Labeled failure modes per run | experiment log and post-run analysis |
@@ -59,7 +61,8 @@ Purpose: measure whether minimal human oversight reduces stalls, false acceptanc
 |---|---|
 | Number of agents | 1, 2, 3, 5 |
 | Decision threshold | 1 approval, 2 approvals, majority of active agents |
-| Self-approval | allowed, forbidden, allowed but labeled |
+| Proposal self-vote prevention | enabled, disabled in ablation branch |
+| Artifact self-review prevention | enabled, disabled in ablation branch |
 | Mission complexity | simple summary, structured comparison, code-change task, source-grounded research task |
 | Artifact review | disabled, peer review only, peer plus human review |
 | Model/provider | TODO: record exact provider and model |

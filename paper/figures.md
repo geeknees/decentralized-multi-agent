@@ -126,6 +126,7 @@ erDiagram
         integer id PK
         text status
         text artifact_filename
+        text artifact_author
         datetime artifact_written_at
         datetime completed_at
         datetime updated_at

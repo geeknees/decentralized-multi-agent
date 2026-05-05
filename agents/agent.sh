@@ -56,7 +56,9 @@ while true; do
      WHERE p.status='OPEN' GROUP BY p.id;")
 
   MISSION_SUMMARY=$(sqlite3 "$DB_PATH" \
-    "SELECT 'status=' || status || ', artifact=' || COALESCE(artifact_filename, 'none')
+    "SELECT 'status=' || status ||
+            ', artifact=' || COALESCE(artifact_filename, 'none') ||
+            ', artifact_author=' || COALESCE(artifact_author, 'none')
      FROM mission_state WHERE id=1;" 2>/dev/null || echo "status=running, artifact=none")
 
   ARTIFACT_REVIEWS=$(sqlite3 -separator $'\x01' "$DB_PATH" \

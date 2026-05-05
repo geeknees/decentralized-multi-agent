@@ -21,6 +21,8 @@ fi
 # Archive current purpose_doc and any artifact files
 cp "$PROJECT_ROOT/purpose_doc.md" "$ARCHIVE_DIR/purpose_doc.md" 2>/dev/null || true
 
+"$PROJECT_ROOT/scripts/init_db.sh" > /dev/null
+
 ARTIFACT_FILES=$(sqlite3 "$DB_PATH" \
   "SELECT DISTINCT filename FROM artifacts;" 2>/dev/null || true)
 
@@ -47,6 +49,7 @@ VALUES (1, 'running', NULL, NULL, NULL, CURRENT_TIMESTAMP)
 ON CONFLICT(id) DO UPDATE SET
   status = 'running',
   artifact_filename = NULL,
+  artifact_author = NULL,
   artifact_written_at = NULL,
   completed_at = NULL,
   updated_at = CURRENT_TIMESTAMP;
