@@ -7,6 +7,7 @@ authors:
     email: "geeknees@gmail.com"
 version: "0.1.0"
 date-released: "2026-05-05"
+doi: "10.5281/zenodo.20034240"
 url: "https://github.com/geeknees/decentralized-multi-agent"
 repository-code: "https://github.com/geeknees/decentralized-multi-agent"
 license: "MIT"
