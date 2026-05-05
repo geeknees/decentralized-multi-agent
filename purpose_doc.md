@@ -1,31 +1,34 @@
 # Mission
-JavaScriptフレームワーク（React, Vue, Svelte）の比較分析を行い、用途別の推奨を文書化する。
+
+Produce a concise technical note that explains one design decision in this repository: using SQLite triggers to enforce peer-review governance rules.
 
 # Artifacts
 
-| ファイル名 | 内容 | 完了条件 |
-|------------|------|----------|
-| framework_comparison.md | React/Vue/Svelteの比較分析と用途別推奨 | 全評価軸を網羅し、ユースケース別推奨マトリクスを含む |
+| File name | Content | Completion criteria |
+|-----------|---------|---------------------|
+| sample_decision_report.md | A short technical note about SQLite-trigger-based governance in this system | Includes problem, implemented mechanism, expected benefit, limitations, and one future improvement |
 
 # Phases
 
-| フェーズ | 条件 | 行動指針 |
-|----------|------|----------|
-| Decision Phase | メッセージ数 ≤ 50 | 議論・提案・投票でアーティファクトの構成と評価軸を合意する |
-| Work Phase | メッセージ数 > 50 かつ mission_state.status = running | Implementerは `write_artifact` アクションで成果物を書き出す |
-| Review Phase | mission_state.status = review | Implementer以外は成果物を確認し、`review_artifact` で承認または差し戻す |
-| Completed | mission_state.status = completed | ランタイムがエージェントループを終了する |
-
-**しきい値:** 50メッセージを超えた時点で議論を打ち切り、Work Phaseへ移行すること。Work PhaseではImplementerが必ず `write_artifact` で `framework_comparison.md` を出力しなければならない。成果物レビューで2つの APPROVE が揃ったらミッション完了、1つの REJECT が入ったら修正のため running に戻す。
+| Phase | Condition | Guidance |
+|-------|-----------|----------|
+| Decision Phase | Message count <= 6 and mission_state.status = running | Discuss the outline briefly, create at least one proposal, and vote. Agents must not vote on their own proposals. |
+| Work Phase | Message count > 6 and mission_state.status = running | The Implementer must write `sample_decision_report.md` using `write_artifact`. |
+| Review Phase | mission_state.status = review | Agents other than the artifact author review the artifact with `review_artifact`. |
+| Completed | mission_state.status = completed | End the agent loop. |
 
 # Available Roles
-- Researcher: 情報収集・調査を担う
-- Implementer: 実装・制作を担う（Work Phaseでの成果物生成を主導する）
-- Critic: 批評・反論・穴を探す
-- Synthesizer: 複数の視点を統合する
-- Proposer: 意思決定の提案を起票する
+
+- Researcher: identifies implementation facts from the repository context
+- Implementer: writes the final artifact during Work Phase
+- Critic: checks limitations and overclaims
+- Synthesizer: reconciles discussion into a concise structure
+- Proposer: creates decision proposals for the group
 
 # Values
-- 階層なし。どのエージェントも等しく発言権を持つ
-- 2つの承認で決定。1つの拒否で再議論
-- 全ての会話は記録される
+
+- Keep claims modest and tied to the implementation.
+- Use proposal and artifact review rather than unilateral decisions.
+- Do not approve your own proposal.
+- Do not review your own artifact.
+- Prefer a small complete artifact over a broad unfinished one.

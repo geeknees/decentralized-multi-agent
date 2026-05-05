@@ -272,7 +272,7 @@ Each agent returns JSON like this:
 
 ```bash
 bash tests/run_tests.sh
-# Results: 66 passed, 0 failed
+# Results: 67 passed, 0 failed
 ```
 
 ## Environment Variables
@@ -283,6 +283,7 @@ bash tests/run_tests.sh
 | `LOOP_INTERVAL` | `10` | Loop interval in seconds |
 | `LOOP_MAX` | `0` (infinite) | For tests: stop after the specified number of loops |
 | `EXPORT_DIR` | Project root | Markdown export destination |
+| `SQLITE_BUSY_TIMEOUT_MS` | `5000` | SQLite busy timeout in milliseconds for concurrent agent reads/writes |
 | `LLM_PROVIDER` | `claude` | Provider used by `scripts/llm_call.sh`: `claude`, `codex`, `ollama`, or `openai-compatible` |
 | `LLM_MODEL` | empty | Model name for providers that require one |
 | `LLM_ENDPOINT` | empty | Chat completions endpoint for OpenAI-compatible providers |
@@ -504,7 +505,7 @@ artifact_reviews (id, filename, reviewer, vote, comment, created_at)
 
 ```bash
 bash tests/run_tests.sh
-# Results: 66 passed, 0 failed
+# Results: 67 passed, 0 failed
 ```
 
 ## 環境変数
@@ -515,6 +516,7 @@ bash tests/run_tests.sh
 | `LOOP_INTERVAL` | `10` | ループ間隔（秒） |
 | `LOOP_MAX` | `0`（無限） | テスト用：指定回数でループ終了 |
 | `EXPORT_DIR` | プロジェクトルート | Markdownエクスポート先 |
+| `SQLITE_BUSY_TIMEOUT_MS` | `5000` | 複数agentの同時読み書き向けSQLite busy timeout（ミリ秒） |
 | `LLM_PROVIDER` | `claude` | `scripts/llm_call.sh` が使うprovider: `claude`, `codex`, `ollama`, `openai-compatible` |
 | `LLM_MODEL` | 空 | providerが必要とするmodel名 |
 | `LLM_ENDPOINT` | 空 | OpenAI互換provider用chat completions endpoint |

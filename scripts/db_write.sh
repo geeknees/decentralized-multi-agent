@@ -5,8 +5,10 @@
 set -euo pipefail
 
 DB_PATH="${DB_PATH:-$(dirname "$0")/../db/collective.db}"
+SQLITE_BUSY_TIMEOUT_MS="${SQLITE_BUSY_TIMEOUT_MS:-5000}"
 
 sq() { printf '%s' "$1" | sed "s/'/''/g"; }
+sqlite() { sqlite3 -cmd ".timeout $SQLITE_BUSY_TIMEOUT_MS" "$DB_PATH" "$@"; }
 
 usage() {
   echo "Usage:"
@@ -23,7 +25,7 @@ case "$cmd" in
     sender="$(sq "${2:?sender required}")"
     recipient="$(sq "${3:?recipient required}")"
     content="$(sq "${4:?content required}")"
-    sqlite3 "$DB_PATH" \
+    sqlite \
       "INSERT INTO messages (sender, recipient, content) VALUES ('$sender', '$recipient', '$content');
        UPDATE agents SET last_seen=CURRENT_TIMESTAMP WHERE name='$sender';"
     ;;
@@ -31,7 +33,7 @@ case "$cmd" in
     proposer="$(sq "${2:?proposer required}")"
     title="$(sq "${3:?title required}")"
     content="$(sq "${4:?content required}")"
-    sqlite3 "$DB_PATH" \
+    sqlite \
       "INSERT INTO proposals (proposer, title, content) VALUES ('$proposer', '$title', '$content');"
     ;;
   vote)
@@ -42,7 +44,7 @@ case "$cmd" in
     if [[ "$vote" != "APPROVE" && "$vote" != "REJECT" ]]; then
       echo "vote must be APPROVE or REJECT" >&2; exit 1
     fi
-    sqlite3 "$DB_PATH" \
+    sqlite \
       "INSERT INTO reviews (proposal_id, reviewer, vote, comment) VALUES ($proposal_id, '$reviewer', '$vote', '$comment');" || exit 1
     ;;
   review_artifact)
@@ -54,7 +56,7 @@ case "$cmd" in
     if [[ "$vote" != "APPROVE" && "$vote" != "REJECT" ]]; then
       echo "vote must be APPROVE or REJECT" >&2; exit 1
     fi
-    sqlite3 "$DB_PATH" \
+    sqlite \
       "INSERT INTO artifact_reviews (filename, reviewer, vote, comment) VALUES ('$filename', '$reviewer', '$vote', '$comment');" || exit 1
     ;;
   *)

@@ -24,6 +24,7 @@
 | Number of agents | 3 |
 | Agent names | `agent-alpha`, `agent-beta`, `agent-gamma` |
 | Loop interval | TODO |
+| SQLite busy timeout | TODO |
 | Max loops, if any | TODO |
 | Token accounting method | TODO |
 

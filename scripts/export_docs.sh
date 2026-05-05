@@ -6,13 +6,14 @@ set -euo pipefail
 
 DB_PATH="${DB_PATH:-$(dirname "$0")/../db/collective.db}"
 EXPORT_DIR="${EXPORT_DIR:-$(dirname "$0")/..}"
+SQLITE_BUSY_TIMEOUT_MS="${SQLITE_BUSY_TIMEOUT_MS:-5000}"
 COLUMN_SEPARATOR=$'\x1f'
 ROW_SEPARATOR=$'\x1e'
 
 mkdir -p "$EXPORT_DIR"
 
 sqlite_stream() {
-  sqlite3 -separator "$COLUMN_SEPARATOR" -newline "$ROW_SEPARATOR" "$DB_PATH" "$1"
+  sqlite3 -cmd ".timeout $SQLITE_BUSY_TIMEOUT_MS" -separator "$COLUMN_SEPARATOR" -newline "$ROW_SEPARATOR" "$DB_PATH" "$1"
 }
 
 print_blockquote() {

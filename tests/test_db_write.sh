@@ -43,3 +43,20 @@ DB_PATH="$DB_PATH" "$SCRIPTS_DIR/db_write.sh" vote agent-reviewer "$pid" APPROVE
 exit_code=$?
 set -e
 assert_equals "1" "$exit_code" "duplicate vote from same agent fails"
+
+# Test: busy timeout waits for a short write lock instead of failing immediately
+sqlite3 "$DB_PATH" "BEGIN EXCLUSIVE; INSERT INTO messages (sender, recipient, content) VALUES ('locker', 'ALL', 'holding lock');" &
+locker_pid=$!
+sleep 0.2
+
+DB_PATH="$DB_PATH" SQLITE_BUSY_TIMEOUT_MS=3000 \
+  "$SCRIPTS_DIR/db_write.sh" post_message agent-test ALL "after lock" &
+writer_pid=$!
+
+sleep 0.5
+kill "$locker_pid" 2>/dev/null || true
+wait "$locker_pid" 2>/dev/null || true
+wait "$writer_pid"
+
+result=$(sqlite3 "$DB_PATH" "SELECT content FROM messages WHERE content='after lock';")
+assert_equals "after lock" "$result" "db_write waits for busy database lock"
