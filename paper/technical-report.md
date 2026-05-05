@@ -33,7 +33,9 @@ This prototype explores a different design question: what is the minimal machine
 - objections are recorded as first-class review events;
 - final artifacts require a review step separate from ordinary discussion.
 
-This framing is related to blackboard systems, peer review, and lightweight governance mechanisms. It may also be suggestive for human-AI collaboration and decentralized organizational metaphors, but those are not the main technical claim here. The core technical object is an executable blackboard and decision protocol for LLM agents.
+This prototype also helps organize implementation-level challenges that appear when trying to realize decentralized organizations with LLM agents. In its current form, the implementation addresses two such challenges: making the decision phase explicit, and making expected artifacts and their acceptance criteria explicit. These are necessary but not sufficient organizational primitives. A broader question remains outside the current implementation: an organization may not exist only to produce artifacts, so its enduring purpose, identity, learning, membership, and value commitments require additional research.
+
+This framing is related to blackboard systems, peer review, lightweight governance mechanisms, and decentralized organizational design. The current technical claim remains narrower than that organizational framing: the core object is an executable blackboard and decision protocol for LLM agents, not a completed theory of decentralized organizations.
 
 ## 3. System Overview
 
@@ -215,6 +217,8 @@ Fifth, output quality is not automatically evaluated. The system can record that
 
 Sixth, reproducibility is currently partial. Source code and tests are versionable, but runtime database logs are ignored by default. Zenodo-ready releases should include selected sample logs, commit hashes, model/provider versions, prompts, and artifact snapshots.
 
+Seventh, the prototype treats organizational activity as mission-driven artifact production and review. This is useful for reproducible experiments, but it does not settle whether a decentralized organization should be defined by artifacts, ongoing purpose, member development, shared values, environmental adaptation, or other non-artifact functions.
+
 Finally, the project should not be framed as evidence that decentralized governance is generally superior to centralized orchestration. The current contribution is an inspectable design and implementation that makes such questions testable.
 
 ## 12. Future Work
@@ -241,6 +245,7 @@ Protocol-level work should include:
 Research-facing work should include:
 
 - a formal related-work review expanded from `paper/related-work-notes.md`;
+- a separate inquiry into decentralized organizational purpose beyond artifact production;
 - controlled comparison with manager-worker orchestration;
 - analysis of when dissent helps or harms;
 - study of how much governance can be enforced in schema versus prompts;

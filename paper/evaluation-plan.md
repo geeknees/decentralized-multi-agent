@@ -8,6 +8,7 @@ This plan defines how to evaluate the decentralized blackboard prototype without
 - Compare decentralized coordination against simpler and more centralized baselines.
 - Identify failure modes and governance rules that matter.
 - Produce reproducible logs suitable for a Zenodo release.
+- Separate artifact-production success from broader organizational-purpose questions.
 
 ## Metrics
 
@@ -28,6 +29,7 @@ This plan defines how to evaluate the decentralized blackboard prototype without
 | Wall-clock time | Start-to-finish elapsed time | experiment log |
 | Reproducibility of runs | Ability to rerun with same commit, prompt, and settings and obtain comparable outcomes | repeated runs |
 | Final artifact quality | Human-rated score against a fixed rubric | blinded human review where possible |
+| Purpose continuity | Whether agents preserve stated mission values across multiple tasks | multi-run logs, human rubric |
 
 ## Baselines
 

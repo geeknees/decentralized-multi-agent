@@ -2,6 +2,8 @@
 
 This file defines research questions for the decentralized multi-agent prototype. The current repository can motivate these questions, but most of them require controlled experiments before strong claims can be made.
 
+This prototype also helps organize practical challenges in realizing decentralized organizations with LLM agents. The current implementation addresses two narrow challenges: explicit decision phases, and explicit artifacts with acceptance criteria. It does not yet address whether an organization exists only for artifact production, or how non-artifact organizational purpose should be represented and evaluated.
+
 ## RQ1: Can LLM agents coordinate through a shared blackboard without a central orchestrator?
 
 ### Background
@@ -144,3 +146,29 @@ The architectural difference is clear at the implementation level: this prototyp
 ### What Cannot Be Said Yet
 
 No empirical comparison has been completed. It is not yet known whether the decentralized version is better for any specific task class.
+
+## RQ6: How should decentralized LLM-agent organizations represent purpose beyond artifact production?
+
+### Background
+
+The current prototype makes missions, phases, artifacts, and review criteria explicit. This is enough to run bounded experiments and produce auditable outputs. It is not enough to model an organization whose existence is not reducible to producing a specified deliverable.
+
+### Indicators to Observe
+
+- whether agents can maintain a stable purpose across multiple missions;
+- whether decisions preserve stated values when no artifact is immediately produced;
+- how agents handle maintenance, learning, onboarding, and reflection tasks;
+- whether non-artifact outcomes can be logged and reviewed without becoming vague;
+- how humans judge organizational coherence across runs.
+
+### Experiment Method
+
+Design multi-mission runs where some phases do not require artifact production. Compare artifact-centered missions with purpose-centered missions that include maintenance, retrospective, policy revision, or member-role evolution. Require logs for decisions that preserve or reinterpret organizational purpose.
+
+### What Can Be Said Now
+
+The prototype can encode a mission document and phase table, and it can force agents to make artifacts and reviews explicit. This helps clarify two organizational mechanics: decision timing and deliverable acceptance.
+
+### What Cannot Be Said Yet
+
+The repository does not yet define or evaluate organizational existence beyond artifacts. It cannot currently test whether decentralized agents sustain identity, values, learning, or purpose across changing tasks.

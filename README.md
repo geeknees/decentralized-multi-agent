@@ -14,11 +14,14 @@ Most practical LLM-agent systems use a central manager, graph, router, or workfl
 
 The goal is not to claim that decentralized coordination is generally superior. The goal is to make the design concrete enough to inspect, run, log, and compare against simpler baselines.
 
+As a research prototype, this project also helps organize practical challenges in realizing decentralized organizations with LLM agents. The current implementation addresses two narrow pieces: making a decision phase explicit, and making expected artifacts and their acceptance criteria explicit. A larger organizational question remains open: an organization may not exist only to produce artifacts. Clarifying organizational purpose beyond deliverable production is future research, not a claim made by this implementation.
+
 ## What this project explores
 
 - Shared-state coordination through SQLite as a blackboard.
 - Peer proposal and voting instead of manager-only decisions.
 - Artifact review as a separate phase from ordinary discussion.
+- Explicit decision phases and artifact definitions as minimal organizational scaffolding.
 - Minimal governance rules that can be enforced by database constraints and triggers.
 - Failure modes such as proposal churn, role duplication, invalid self-vote attempts, and stalled convergence.
 
