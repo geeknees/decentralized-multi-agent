@@ -13,7 +13,7 @@ This is a working-paper package, not a peer-reviewed publication. Claims should 
 | `evaluation-plan.md` | Metrics, baselines, and experiment design |
 | `experiment-log-template.md` | Per-run experiment logging template |
 | `figures.md` | Mermaid diagrams for architecture, loops, decision flow, artifact review, and schema |
-| `related-work-notes.md` | Related-work notes with verification status |
+| `related-work-notes.md` | Attachment-style notes separating required reading from candidate related work |
 | `zenodo-release-checklist.md` | Release checklist for GitHub and Zenodo |
 
 ## Suggested Release Package

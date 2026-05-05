@@ -35,7 +35,7 @@ Use this checklist before creating a GitHub release connected to Zenodo.
 - [x] `paper/related-work-notes.md` included.
 - [x] Limitations reviewed for accuracy and restraint.
 - [x] Claims checked against implementation and sample logs.
-- [x] Unverified citations marked as TODO or "to verify".
+- [x] Candidate related work kept out of formal references unless directly connected to the report.
 
 ## Archive Contents
 
@@ -59,5 +59,5 @@ Use this checklist before creating a GitHub release connected to Zenodo.
 - [ ] License decision verified.
 - [ ] Abstract approved.
 - [ ] Keywords approved.
-- [ ] Related-work notes checked for citation accuracy.
+- [ ] Required related-work references checked for citation accuracy.
 - [ ] Any sample artifact checked for factual claims and source quality.

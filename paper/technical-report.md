@@ -209,7 +209,7 @@ Second, the governance protocol is intentionally minimal. It demonstrates propos
 
 Third, agent behavior remains heavily prompt-mediated. The database enforces duplicate vote prevention and approval thresholds, but several important norms are only described in `agents/CLAUDE.md`. A model may ignore or inconsistently apply those norms.
 
-Fourth, the system has not yet been evaluated under repeated controlled experiments. No statistically meaningful comparison has been run against a single-agent baseline, a manager-worker baseline, or established frameworks such as AutoGen, CrewAI, or LangGraph.
+Fourth, the system has not yet been evaluated under repeated controlled experiments. No statistically meaningful comparison has been run against a single-agent baseline, a manager-worker baseline, or established orchestration approaches such as AutoGen or LangGraph.
 
 Fifth, output quality is not automatically evaluated. The system can record that an artifact was accepted, but acceptance is based on agent votes rather than an external rubric, independent human judgment, or objective task score.
 
@@ -240,7 +240,7 @@ Protocol-level work should include:
 
 Research-facing work should include:
 
-- a cleaned related-work review;
+- a formal related-work review expanded from `paper/related-work-notes.md`;
 - controlled comparison with manager-worker orchestration;
 - analysis of when dissent helps or harms;
 - study of how much governance can be enforced in schema versus prompts;
@@ -250,17 +250,12 @@ Research-facing work should include:
 
 This technical report describes a small decentralized multi-agent prototype in which LLM agents coordinate through a SQLite blackboard and peer-review protocol. The system demonstrates that proposal voting, duplicate vote prevention, decision triggers, artifact writing, and artifact review can be encoded with simple local infrastructure. It also exposes important limitations: prompt-level governance is fragile, uncontrolled debate can churn, output quality is not independently measured, and current evidence is preliminary.
 
-The repository is therefore best released as a research prototype and working-paper package. A Zenodo DOI can provide a stable record of the implementation and design rationale, while future work should supply controlled experiments before stronger claims are made.
-
 ## References
 
-- Corkill, D. (1991). Blackboard Systems. *AI Expert*, 6(9). http://mas.cs.umass.edu/paper/218
 - Du, Y., Li, S., Torralba, A., Tenenbaum, J. B., & Mordatch, I. (2024). Improving Factuality and Reasoning in Language Models through Multiagent Debate. *Proceedings of the 41st International Conference on Machine Learning*, PMLR 235:11733-11763. https://proceedings.mlr.press/v235/du24e.html
 - Erman, L. D., Hayes-Roth, F., Lesser, V. R., & Reddy, D. R. (1980). The Hearsay-II Speech-Understanding System: Integrating Knowledge to Resolve Uncertainty. *ACM Computing Surveys*, 12(2), 213-253. https://doi.org/10.1145/356810.356816
 - Hayes-Roth, B. (1985). A Blackboard Architecture for Control. *Artificial Intelligence*, 26(3), 251-321. https://doi.org/10.1016/0004-3702(85)90063-3
-- Li, G., Hammoud, H. A. K., Itani, H., Khizbullin, D., & Ghanem, B. (2023). CAMEL: Communicative Agents for "Mind" Exploration of Large Scale Language Model Society. arXiv:2303.17760. https://doi.org/10.48550/arXiv.2303.17760
 - Nii, H. P. (1986). Blackboard Systems, Part One: The Blackboard Model of Problem Solving and the Evolution of Blackboard Architectures. *AI Magazine*, 7(2), 38-53. https://dblp.org/rec/journals/aim/Nii86
 - Wu, Q., Bansal, G., Zhang, J., et al. (2023). AutoGen: Enabling Next-Gen LLM Applications via Multi-Agent Conversation Framework. arXiv:2308.08155. https://doi.org/10.48550/arXiv.2308.08155
-- CrewAI. (n.d.). CrewAI Documentation. Retrieved 2026-05-05, from https://docs.crewai.com/
 - LangChain. (n.d.). LangGraph overview. Retrieved 2026-05-05, from https://docs.langchain.com/oss/python/langgraph/overview
 - LangChain. (n.d.). Multi-agent systems. Retrieved 2026-05-05, from https://docs.langchain.com/oss/python/langchain/multi-agent/index
