@@ -6,7 +6,84 @@
 
 A decentralized autonomous system where multiple AI agents share a SQLite blackboard and make decisions through peer review. Agents run as tmux panes and call `claude --print` to return actions in JSON format.
 
+This repository is also prepared as a research prototype for a Zenodo DOI release. It is a technical-report / working-paper artifact, not a peer-reviewed paper. The implementation is the live development space; the `paper/` directory contains the fixed research framing, evaluation plan, and release notes.
+
+## Research Motivation
+
+Most practical LLM-agent systems use a central manager, graph, router, or workflow engine to decide which agent acts next. This project explores a different question: can peer LLM agents coordinate through a shared blackboard and lightweight governance rules without a standing central orchestrator?
+
+The goal is not to claim that decentralized coordination is generally superior. The goal is to make the design concrete enough to inspect, run, log, and compare against simpler baselines.
+
+## What this project explores
+
+- Shared-state coordination through SQLite as a blackboard.
+- Peer proposal and voting instead of manager-only decisions.
+- Artifact review as a separate phase from ordinary discussion.
+- Minimal governance rules that can be enforced by database constraints and triggers.
+- Failure modes such as proposal churn, role duplication, self-approval, and stalled convergence.
+
+For the detailed working-paper draft, see [`paper/technical-report.md`](paper/technical-report.md).
+
 ## Architecture
+
+At a high level, each agent runs the same loop: read the mission and blackboard state, ask an LLM for JSON actions, write those actions to SQLite, export human-readable logs, and repeat. The architecture is closest to a blackboard system: agents do not directly control one another, and the database stores both working context and governance events.
+
+See [`paper/figures.md`](paper/figures.md) for Mermaid diagrams.
+
+## Decision Protocol
+
+- Proposal decisions: two `APPROVE` votes mark a proposal as `DECIDED`.
+- Duplicate proposal votes by the same reviewer are blocked by a SQLite `UNIQUE` constraint.
+- `REJECT` comments are required by agent instructions to include an alternative.
+- Artifact review: `write_artifact` moves the mission into review; two artifact approvals complete the mission; one artifact rejection reopens it.
+
+Some norms are currently prompt-level rather than schema-level. For example, self-approval is not yet prevented by the database.
+
+## Reproducibility
+
+Run the test suite:
+
+```bash
+bash tests/run_tests.sh
+```
+
+For research runs, record the commit hash, model/provider, number of agents, mission prompt, final state, proposals, votes, artifact outputs, human interventions, and reproducibility notes. Use [`paper/experiment-log-template.md`](paper/experiment-log-template.md).
+
+Generated runtime files such as `db/*.db`, `whole_conversation_doc.md`, and `peer_review_doc.md` are ignored by default. Curated sample runs should be copied into an explicit experiment directory before release.
+
+## Evaluation Plan
+
+The planned comparison set is:
+
+- single-agent baseline;
+- central manager-agent baseline;
+- decentralized blackboard version;
+- human-in-the-loop version.
+
+Metrics include task completion rate, time to decision, messages until decision, proposal count, approve/reject ratio, artifact acceptance rate, human intervention points, token cost, wall-clock time, reproducibility, and human-rated artifact quality. See [`paper/evaluation-plan.md`](paper/evaluation-plan.md).
+
+## Citation
+
+Citation metadata is provided in [`CITATION.cff`](CITATION.cff). Until a DOI is minted, cite the GitHub repository and version tag. After Zenodo publication, the DOI should be added here and to `CITATION.cff`.
+
+## Limitations
+
+- This is a local shell/Ruby/SQLite prototype, not production infrastructure.
+- Current evidence is limited to implementation tests and sample runs, not controlled experiments.
+- Output quality is not automatically or independently evaluated.
+- Several governance rules are prompt-level and may be ignored by a model.
+- Self-approval, deadlock handling, role occupancy, and richer quorum rules are future work.
+
+## Roadmap
+
+- Add curated sample runs using the current schema.
+- Export structured experiment metrics from SQLite.
+- Add token and wall-clock accounting.
+- Compare against single-agent and central manager-agent baselines.
+- Add no-self-approval or explicit self-approval labeling.
+- Prepare a v0.1.0 GitHub release linked to Zenodo.
+
+## Runtime Architecture
 
 ```
 ┌─────────────────────────────────────────────────────┐

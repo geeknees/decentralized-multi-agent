@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+message: "If you use this research prototype, please cite it using the metadata below."
+title: "Decentralized Multi-Agent System: A Blackboard-Based Peer Review Architecture for LLM Agents"
+authors:
+  - family-names: "Kawasaki"
+    given-names: "Masumi"
+    email: "geeknees@gmail.com"
+version: "0.1.0"
+date-released: "2026-05-05"
+url: "https://github.com/geeknees/decentralized-multi-agent"
+repository-code: "https://github.com/geeknees/decentralized-multi-agent"
+license: "MIT"
+abstract: "A research prototype for decentralized coordination among LLM agents using a SQLite blackboard, proposal voting, and artifact peer review. The project is released as a working-paper package for reproducible inspection rather than as a peer-reviewed result."
+keywords:
+  - "multi-agent systems"
+  - "LLM agents"
+  - "blackboard architecture"
+  - "decentralized coordination"
+  - "peer review"
+  - "collective intelligence"
+  - "agent governance"
+  - "human-AI collaboration"
